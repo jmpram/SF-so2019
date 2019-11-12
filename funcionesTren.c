@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define MAX 80
 
    void createTren(ST_TREN * tren){
      
@@ -15,10 +16,57 @@
      memset(tren->motivo ,'\0',strlen(tren->motivo));//PASO O ANDEN
 }
 
+void obtenerPalabra (const char* linea, char * palabra, int *indice){
+    int i=0;
+    while(*linea!=',' && *linea!='.'){
+        *(palabra+i)=*linea;
+        linea++;
+        *indice=*indice+1;
+        i++;
+    }
+    *indice=*indice+1;
 
-void cargatren(char * tren){
-    FILE*archivo=fopen("config.txt","r");
-    fgets(tren,20,archivo);
+}
+
+void cargarTren(const char* linea,ST_TREN * tren){
+         int i=0;
+     int indice=0;
+     char * palabra=(char*)malloc(sizeof(char),MAX);
+
+     while(*linea!='\0'){
+            indice=0;
+            memset(palabra,'\0',MAX);
+            obtenerPalabra(linea,palabra,&indice);
+            i++;
+            if(i==1){
+                tren->idTren=
+
+            }
+            if(i==2){
+
+            }
+             if(i==3){
+                
+            }
+             if(i==4){
+                
+            }
+             if(i==5){
+                
+            }
+             if(i==6){
+                
+            }
+             if(i==7){
+                
+            }
+             if(i==8){
+                
+            }
+
+
+      linea=linea+indice;          
+     }
     
 }
 /*void pasardatosabuffer(char*linea, ST_TREN tren){

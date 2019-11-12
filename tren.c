@@ -17,7 +17,7 @@ void escribirMensaje(int sockTren,ST_TREN * tren) {
         printf(" \n Ingrese el mensaje: \n"); 
         i = 0; 
         while ((mensaje[i++] = getchar()) != '\n'); 
-        tren->combustible=tren->trenCombustible-15;
+        
             if ((strncmp(mensaje, "info", 4)) == 0) { 
                 printf("Informacion del tren:\n"); 
                 printf("Modelo:%s\n",tren->idTren);
@@ -35,19 +35,33 @@ void escribirMensaje(int sockTren,ST_TREN * tren) {
         } else{
         
             send(sockTren, mensaje, sizeof(mensaje),0); 
-            bzero(mensaje, sizeof(mensaje)); 
-            recv(sockTren, mensaje, sizeof(mensaje),0); 
-            printf("Estacion envio: %s \n", mensaje); 
+            //bzero(mensaje, sizeof(mensaje)); 
+            //recv(sockTren, mensaje, sizeof(mensaje),0); 
+           // printf("Estacion envio: %s \n", mensaje); 
         } 
         bzero(mensaje, sizeof(mensaje)); 
     } 
 } 
   
-int main() 
-{ 
+int main(int argc, char * argv[]) { 
+    FILE * config=NULL;
+    char * linea=(char*)malloc(sizeof(char)*MAX);
+    memset(linea,'\0',MAX);
+    config=fopen(argv[1],"r");
+
+    if(config==NULL){
+        printf("fallo la apertura");
+        exit(EXIT_FAILURE);
+    } else{
+        printf("se abrio el archivo\n");
+        }
+        while(fgets(linea,37+1,config)!=NULL){
+            
+              
+        }
     ST_TREN tren;
-    createTren(&tren);
-    tren.idTren
+   // createTren(&tren);
+    
     int sockTren; 
     struct sockaddr_in estacionAddr; 
   
