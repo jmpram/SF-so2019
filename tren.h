@@ -9,7 +9,7 @@ typedef struct {
     char idTren[8];
     char estacionOrigen[5];
     char estacionDestino[5];
-    int pasajeros;
+    char  pasajeros[6];
     int combustible;
     int tViaje;
     char estado[10];
@@ -19,9 +19,11 @@ typedef struct {
 
 void createTren(ST_TREN * tren);
 
-void registrarTren(ST_TREN * tren);
+void cargarTren(const char* linea,ST_TREN * tren);
 
-void cargartren(char *tren);
+void enviarTren(ST_TREN * tren, int sockTren);
+
+void registrarTren(ST_TREN * tren);
 
 void pasardatosabuffer(char*linea, ST_TREN tren);
 

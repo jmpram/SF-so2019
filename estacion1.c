@@ -56,7 +56,8 @@ ST_ESTACION estacion1;
 estacion1.sId=15485;
 estacion1.usoAnden=0;
 stationParseToSend(estacion1,buffer);
-printf("buffer:%s\n",buffer);
+ printf("buffer:%s",buffer);
+
 struct sockaddr_in estacionAddr;  
 int option = TRUE;   
 int sockEstacion, new_socket , sockTrenes[30] , max_trenes = 30 , activity, i , valread , numDescripTren;   

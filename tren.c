@@ -23,12 +23,19 @@ void escribirMensaje(int sockTren,ST_TREN * tren) {
                 printf("Modelo:%s\n",tren->idTren);
                 printf("Origen:%s\n",tren->estacionOrigen);
                 printf("Destino:%s\n",tren->estacionDestino);
-                printf("Cant de pasajeros:%d\n",tren->pasajeros);
+                printf("Cant de pasajeros:%s\n",tren->pasajeros);
                 printf("Litros de combustible:%d\n",tren->combustible);
                 printf("tiempo de viaje restante:%d\n",tren->tViaje);
                 printf("Estado:%s\n",tren->estado); // en transito, en anden, en estacion
                 printf("Motivo:%s\n",tren->motivo); // paso o anden
           } 
+		if ((strncmp(mensaje, "enviar tren", 4)) == 0) { 
+            printf("El tren se  esta poniendo en marcha.\n"); 
+		enviarTren(tren, sockTren);
+
+            break; 
+        }
+
             if ((strncmp(mensaje, "exit", 4)) == 0) { 
             printf("te desconectaste.\n"); 
             break; 
@@ -44,9 +51,12 @@ void escribirMensaje(int sockTren,ST_TREN * tren) {
 } 
   
 int main(int argc, char * argv[]) { 
+ 	int sockTren; 
+    struct sockaddr_in estacionAddr; 
     FILE * config=NULL;
-    char * linea=(char*)malloc(sizeof(char)*MAX);
+    char * linea=malloc(sizeof (char) *MAX);
     memset(linea,'\0',MAX);
+
     config=fopen(argv[1],"r");
 
     if(config==NULL){
@@ -56,14 +66,13 @@ int main(int argc, char * argv[]) {
         printf("se abrio el archivo\n");
         }
         while(fgets(linea,37+1,config)!=NULL){
-            
+            printf("linea:\n",linea);
               
         }
     ST_TREN tren;
-   // createTren(&tren);
-    
-    int sockTren; 
-    struct sockaddr_in estacionAddr; 
+   createTren(&tren);
+   cargarTren(linea,&tren); 
+   
   
     // se crea el socket
     sockTren = socket(AF_INET, SOCK_STREAM, 0); 
