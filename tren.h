@@ -17,6 +17,8 @@ typedef struct {
      
 } ST_TREN ;
 
+void borrenEstaFuncion(char a);
+
 void createTren(ST_TREN * tren);
 
 void registrarTren(ST_TREN * tren);
