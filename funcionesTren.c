@@ -18,29 +18,28 @@
 
 void obtenerPalabra (const char* linea, char * palabra, int *indice){
     int i=0;
-    while(*linea!=',' && *linea!='.'){
+    while(*linea && *linea!=',' && *linea!='.'){
         *(palabra+i)=*linea;
         linea++;
         *indice=*indice+1;
         i++;
     }
     *indice=*indice+1;
-
 }
 
 void cargarTren(const char* linea,ST_TREN * tren){
-         int i=0;
+     int i=0;
      int indice=0;
      char * palabra=(char*)malloc(sizeof(char)*MAX);
 
      while(*linea!='\0'){
+            i++;
             indice=0;
             memset(palabra,'\0',MAX);
             obtenerPalabra(linea,palabra,&indice);
-            i++;
+            
             if(i==1){
                 strcpy(tren->idTren,palabra);
-
             }
             if(i==2){
                 strcpy(tren->estacionOrigen,palabra);
@@ -63,35 +62,90 @@ void cargarTren(const char* linea,ST_TREN * tren){
              if(i==8){
                 strcpy(tren->motivo,palabra);
             }
-
-      linea=linea+indice;          
+        linea=linea+indice;          
      }
     
 }
 
+void itoa(char *linea,int valor){
+    sprintf(linea,"%d",valor); 
+}
+
 void enviarTren(ST_TREN * tren, int sockTren){
 
-char* mensaje=(char*)malloc(sizeof(char)*MAX);
-	codificarMsj(mensaje,tren);
- send(sockTren, mensaje, sizeof(mensaje),0); 
-
-
+    char* mensaje=(char*)malloc(sizeof(char)*MAX);
+	codificarMsj(mensaje,&tren);
+    send(sockTren, mensaje, sizeof(mensaje),0); 
 }
- void codificarMsj(const char* buffer, ST_TREN * tren){
-    char * aux=(char*)malloc(sizeof(char)*MAX);
-    memset(aux,'\0',MAX);
-    char coma[2];
-    memset(coma,'\0',2);
-    coma[0]=',';
+void concatenarMsj (char *buffer,char *aux, char* msj, char * coma){
+    
+    strcpy(aux,msj);
+    strcat(buffer,aux);
+    strcat(buffer,coma);
+}
 
-    itoa(estacion.sId,aux);
+ void codificarMsj(char * buffer, ST_TREN * tren){
+    int i=0;
+    char coma[2];
+    char tipoEnt[2];
+    memset(coma,'\0',2);
+    memset(tipoEnt,'\0',2);
+    tipoEnt[0]='T';
+    coma[0]=',';
+    char * aux=(char*)malloc(sizeof(char)*MAX); 
+    memset(aux,'\0',MAX);
+
+    strcpy(aux,tipoEnt);
     strcpy(buffer,aux);
     strcat(buffer,coma);
-    memset(aux,'\0',MAX);
-    itoa(estacion.usoAnden,aux);
-    strcat(buffer,aux); 
-   strcat(buffer,coma);  
+    printf("linea:%s \n",buffer);
+    
+    while(i<8){
+        memset(aux,'\0',MAX);
 
+        switch(i){
+           
+            case 0:
+                    concatenarMsj(buffer,aux,tren->idTren,coma);
+                    
+                    break;
+            case 1:
+                    concatenarMsj(buffer,aux, tren->estacionOrigen,coma);
+                    
+                    break;
+            case 2:
+                    concatenarMsj(buffer,aux,tren->estacionDestino,coma);
+                    
+                    break;
+            case 3:
+                    concatenarMsj(buffer,aux,tren->pasajeros,coma); 
+                             
+                    break;
+            case 4:
+                    itoa(aux,tren->combustible);
+                    strcat(buffer,aux);
+                    strcat(buffer,coma);
+                    
+                    break;
+            case 5:
+                    itoa(aux,tren->tViaje);
+                    strcat(buffer,aux);
+                    strcat(buffer,coma);
+                    
+                    break;
+            case 6:
+                    concatenarMsj(buffer,aux,tren->estado,coma); 
+                    
+                    break;
+            case 7:
+                    concatenarMsj(buffer,aux,tren->motivo,coma);
+                    break;
+            default:  
+                    break;
+        }
+
+        i++;
+    }
 }
 /*void pasardatosabuffer(char*linea, ST_TREN tren){
     strcat

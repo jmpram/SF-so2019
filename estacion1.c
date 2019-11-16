@@ -17,54 +17,16 @@
 #define FALSE 0 
 #define PORT 8080
 
-typedef struct{
-    int sId;
-    int usoAnden;
-    ST_TREN regTrenes[5];
-
-}ST_ESTACION;
-
-void itoa(int valor, char *linea){
-
-  sprintf(linea,"%d",valor);
-   
-}
-
-void stationParseToSend(ST_ESTACION estacion, char * buffer){
-    char * aux=(char*)malloc(sizeof(char)*MAX);
-    memset(aux,'\0',MAX);
-    char coma[2];
-    memset(coma,'\0',2);
-    coma[0]=',';
-
-    itoa(estacion.sId,aux);
-    strcpy(buffer,aux);
-    strcat(buffer,coma);
-    memset(aux,'\0',MAX);
-    itoa(estacion.usoAnden,aux);
-    strcat(buffer,aux); 
-   // strcat(buffer,coma);  
-
-
-}
-
 int main(int argc , char *argv[]){ 
 int conectado=0;
 char buffer[MAX]; 
 memset(buffer,'\0' ,MAX);
-ST_ESTACION estacion1;
-estacion1.sId=15485;
-estacion1.usoAnden=0;
-stationParseToSend(estacion1,buffer);
- printf("buffer:%s",buffer);
-
 struct sockaddr_in estacionAddr;  
 int option = TRUE;   
 int sockEstacion, new_socket , sockTrenes[30] , max_trenes = 30 , activity, i , valread , numDescripTren;   
 int max_numDescripTren, sockEst1;   
 //puntero  los descriptores de los trenes
 fd_set descriptoresTrenes;   
-
 /////////////////////////////////////////////////////////////////
     struct sockaddr_in estacion2; 
     sockEst1 = socket(AF_INET, SOCK_STREAM, 0); 
@@ -84,15 +46,11 @@ fd_set descriptoresTrenes;
     while(conectado==0){
     // se conecta la estacion 1 con la estacion 2
         if (connect(sockEst1, (struct sockaddr*)&estacion2, sizeof(estacion2)) == 0) { 
-            conectado=1;
-             
-       
+            conectado=1;                    
         } 
     }
     printf("Esta conectado con la Estacion 2..\n");
-    
 ////////////////////////////////////////////////////////////////
-
 
     //se inicilizan el array socket trenes a valores 0
     for (i = 0; i < max_trenes; i++){   
@@ -110,24 +68,20 @@ fd_set descriptoresTrenes;
         perror("error en las opciones del socket estacion");   
         exit(EXIT_FAILURE);   
     }   
-     
     //se establece el tipo de socket 
     estacionAddr.sin_family = AF_INET;   
     estacionAddr.sin_addr.s_addr = INADDR_ANY;   
     estacionAddr.sin_port = htons(PORT);   
          
     //enlaza el socket al  localhost 
-    if (bind(sockEstacion, (struct sockaddr *)&estacionAddr, sizeof(estacionAddr))<0)   
-    {   
+    if (bind(sockEstacion, (struct sockaddr *)&estacionAddr, sizeof(estacionAddr))<0){   
         perror("fallo en el enlace");   
         exit(EXIT_FAILURE);   
     }   
     printf("la estacion esta escuchando en el puerto: %d \n", PORT); 
-
-         
+     
     //try to specify maximum of 3 pending connections for the master socket  
-    if (listen(sockEstacion, 5) < 0)   
-    {   
+    if (listen(sockEstacion, 5) < 0){   
         perror("La Estacion ya no puede recibir mas trenes");   
         exit(EXIT_FAILURE);   
     }   
@@ -136,8 +90,7 @@ fd_set descriptoresTrenes;
     int addrlen = sizeof(estacionAddr);   
     puts("esperando por comunicaciones entrantes...");   
          
-    while(TRUE)   
-    {   
+    while(TRUE){   
         //clear the socket set  
         FD_ZERO(&descriptoresTrenes);   
      
@@ -146,8 +99,7 @@ fd_set descriptoresTrenes;
         max_numDescripTren = sockEstacion;   
              
         //add child sockets to set  
-        for ( i = 0 ; i < max_trenes ; i++)   
-        {   
+        for ( i = 0 ; i < max_trenes ; i++){   
             //socket descriptor  
            numDescripTren = sockTrenes[i];   
                  
@@ -164,17 +116,15 @@ fd_set descriptoresTrenes;
         //so wait indefinitely  
         activity = select( max_numDescripTren + 1 , &descriptoresTrenes , NULL , NULL , NULL);   
        
-        if ((activity < 0) && (errno!=EINTR))   
-        {   
+        if ((activity < 0) && (errno!=EINTR)){   
             printf("select error");   
         }   
              
         //If something happened on the master socket ,  
         //then its an incoming connection  
-        if (FD_ISSET(sockEstacion, &descriptoresTrenes))   
-        {   
-            if ((new_socket = accept(sockEstacion,(struct sockaddr*)&estacionAddr,(socklen_t*)&addrlen))<0)   
-            {   
+        if (FD_ISSET(sockEstacion, &descriptoresTrenes)){   
+
+            if ((new_socket = accept(sockEstacion,(struct sockaddr*)&estacionAddr,(socklen_t*)&addrlen))<0){   
                 perror("error al aceptar la conexion");   
                 exit(EXIT_FAILURE);   
             }   
@@ -185,14 +135,11 @@ fd_set descriptoresTrenes;
                 //  ACA   SE DEBERIA HACER EL SEND ??? 
                  
             //add new socket to array of sockets  
-            for (i = 0; i < max_trenes; i++)   
-            {   
+            for (i = 0; i < max_trenes; i++){   
                 //if position is empty  
-                if( sockTrenes[i] == 0 )   
-                {   
+                if( sockTrenes[i] == 0 ){   
                     sockTrenes[i] = new_socket;   
                     printf("añadiendolo a la lista de socket trenes %d\n" , i);   
-                         
                     break;   
                 }   
             }   
@@ -201,16 +148,15 @@ fd_set descriptoresTrenes;
         //else its some IO operation on some other socket 
         for (i = 0; i < max_trenes; i++){ 
 
-            numDescripTren = sockTrenes[i];   
+        numDescripTren = sockTrenes[i];   
                  
         if (FD_ISSET( numDescripTren , &descriptoresTrenes)){   
                 //se chequea si alguien se desconecto o  se recibe el mensaje del tren 
               if ((valread = read( numDescripTren , buffer, MAX)) == 0){   
                //Somebody disconnected , get his details and print  
-            getpeername(numDescripTren , (struct sockaddr*)&estacionAddr ,(socklen_t*)&addrlen );   
-            printf("Host disconnected , ip %s , port %d \n" ,inet_ntoa(estacionAddr.sin_addr) ,ntohs(estacionAddr.sin_port));   
-                         
-                     // CIERRA EL SOCKET DEL TREN QUE SE DESCONECTO Y MARCA LA LISTA COMO 0 PRAA REUSAR
+              getpeername(numDescripTren , (struct sockaddr*)&estacionAddr ,(socklen_t*)&addrlen );   
+              printf("Host disconnected , ip %s , port %d \n" ,inet_ntoa(estacionAddr.sin_addr) ,ntohs(estacionAddr.sin_port));   
+                    // CIERRA EL SOCKET DEL TREN QUE SE DESCONECTO Y MARCA LA LISTA COMO 0 PRAA REUSAR
                     close( numDescripTren );   
                     sockTrenes[i] = 0;   
                 }    else {  
@@ -219,7 +165,6 @@ fd_set descriptoresTrenes;
                 // ACA DEBERIAMOS IMPLEMENTAR UNA FUNCION PARECIDA A LA USADA EN TREN1.C
 					//gets 
                    // send
-                   
                 }   
             }   
         }   
