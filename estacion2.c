@@ -10,6 +10,7 @@
 
 //Example code: A simple server side code, which echos back the received message. 
 //Handle multiple socket connections with select and fd_set on Linux 
+#include <stdbool.h>
 #include <stdio.h> 
 #include <string.h> //strlen 
 #include <stdlib.h> 
@@ -21,6 +22,7 @@
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 #include "tren.h"
+#include "estacion.h"
 #define MAX 80    
 #define TRUE 1 
 #define FALSE 0 

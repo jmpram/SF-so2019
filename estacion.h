@@ -17,35 +17,37 @@
 
 #ifndef TREN_H 
 #define TREN_H
+#include "tren.h"
+#include <stdbool.h> 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef struct {
+	
+    char idTren[8];
+    char estacionOrigen[5];
+    char estacionDestino[5];
+    char  pasajeros[6];
+    int combustible;
+    int tViaje;
+    char estado[10];
+    char motivo[10];  
+} ST_TREN;
+
 typedef struct {	
     int sId;
     bool usoAnden;
-    ST_TREN regTrenes[5];
+   ST_TREN regTrenes[5];
 
 }ST_ESTACION;
 
-typedef struct nodo{
-    ST_TREN data;
-    struct nodo *ste;
-    
-}ST_LISTA;
-
-
-void create(ST_LISTA **list);
-
-ST_LISTA * crearnodo(ST_TREN dato);
-
-ST_LISTA * instordlistaesp (ST_LISTA **list, ST_TREN dato);
-
 void itoa(int valor, char *linea);
 
-ST_TREN * decodificarTren(const char* buffer);
+char identificarEntidad(char* buffer);
 
-char identificarEntidad(const char * buffer);
+void decodificarTren(char* buffer,ST_TREN * tren);
 
 void escribirRegTrenes(ST_TREN tren);
 

@@ -10,6 +10,7 @@
 
 //Example code: A simple server side code, which echos back the received message. 
 //Handle multiple socket connections with select and fd_set on Linux 
+#include <stdbool.h>
 #include <stdio.h> 
 #include <string.h> 
 #include <stdlib.h> 
@@ -21,22 +22,26 @@
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 #include "tren.h"
+#include "estacion.h"
 #define MAX 80    
 #define TRUE 1 
 #define FALSE 0 
 #define PORT 8080
 
 int main(int argc , char *argv[]){ 
-int conectado=0;
-char buffer[MAX]; 
-memset(buffer,'\0' ,MAX);
-struct sockaddr_in estacionAddr;  
-int option = TRUE;   
-int sockEstacion, new_socket , sockTrenes[30] , max_trenes = 30 , activity, i , 
-        valread , numDescripTren;   
-int max_numDescripTren, sockEst1;   
-//puntero  los descriptores de los trenes
-fd_set descriptoresTrenes;   
+
+    ST_TREN tren;
+
+    char tipoEnt;
+    int conectado=0;
+    char buffer[MAX]; 
+    memset(buffer,'\0' ,MAX);
+    struct sockaddr_in estacionAddr;  
+    int option = TRUE;   
+    int sockEstacion, new_socket , sockTrenes[30] , max_trenes = 30 , activity, i , valread , numDescripTren;   
+    int max_numDescripTren, sockEst1;   
+    //puntero  los descriptores de los trenes
+    fd_set descriptoresTrenes;   
 /////////////////////////////////////////////////////////////////
     struct sockaddr_in estacion2; 
     sockEst1 = socket(AF_INET, SOCK_STREAM, 0); 
@@ -50,7 +55,7 @@ fd_set descriptoresTrenes;
     bzero(&estacion2, sizeof(estacion2)); 
   
     estacion2.sin_family = AF_INET; 
-    estacion2.sin_addr.s_addr = INADDR_ANY; 
+    estacion2.sin_addr.s_addr =INADDR_ANY; 
     estacion2.sin_port = htons(5080); 
     printf("esperando  a que pueda establecerse comunicacion con la estacion 2:\n"); 
     while(conectado==0){
@@ -170,7 +175,15 @@ fd_set descriptoresTrenes;
                     close( numDescripTren );   
                     sockTrenes[i] = 0;   
                 }    else {  
+
+                    tipoEnt=identificarEntidad(buffer);
+                    if(tipoEnt=='T'){
+
+                       decoficarTren(buffer,&tren);
+                    }
+                    
                     printf("Tren %d: %s",new_socket, buffer);
+
                 // ESTO PERMITE ENVIAR UN MENSAJE AL TREN  SERIA UTILIZADO PARA LOS COMANDOS
                 // ACA DEBERIAMOS IMPLEMENTAR UNA FUNCION PARECIDA A LA USADA EN TREN1.C
 					//gets 

@@ -15,15 +15,15 @@
  * funciones del tren
  * Manejos de los mensajes de la estructura tren cliente
  */ 
-
-
+#include <stdbool.h>
 #include "tren.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #define MAX 80
 
-   void createTren(ST_TREN * tren){
+
+void createTren(ST_TREN * tren){
      
      memset(tren->idTren,'\0',8);
      memset(tren->estacionOrigen,'\0',strlen(tren->estacionOrigen));
@@ -33,6 +33,7 @@
      tren->tViaje=0;
      strcpy(tren->estado,"estacion");//estacion,anden, transito
      memset(tren->motivo ,'\0',strlen(tren->motivo));//PASO O ANDEN
+     
 }
 
 void obtenerPalabra (const char* linea, char * palabra, int *indice){
@@ -92,9 +93,10 @@ void itoa(char *linea,int valor){
 
 void enviarTren(ST_TREN * tren, int sockTren){
 
-    char* mensaje=(char*)malloc(sizeof(char)*MAX);
-	codificarMsj(mensaje,&tren);
+    char * mensaje=(char*)malloc(sizeof(char)*MAX);
+	codificarMsj(mensaje,tren);
     send(sockTren, mensaje, sizeof(mensaje),0); 
+    free(mensaje);
 }
 void concatenarMsj (char *buffer,char *aux, char* msj, char * coma){
     
@@ -103,7 +105,7 @@ void concatenarMsj (char *buffer,char *aux, char* msj, char * coma){
     strcat(buffer,coma);
 }
 
- void codificarMsj(char * buffer, ST_TREN * tren){
+ void codificarMsj (char * buffer, ST_TREN * tren){
     int i=0;
     char coma[2];
     char tipoEnt[2];
@@ -158,7 +160,7 @@ void concatenarMsj (char *buffer,char *aux, char* msj, char * coma){
                     break;
             case 7:
                     concatenarMsj(buffer,aux,tren->motivo,coma);
-                    break;
+                    break;    
             default:  
                     break;
         }
@@ -166,37 +168,45 @@ void concatenarMsj (char *buffer,char *aux, char* msj, char * coma){
         i++;
     }
 }
-/*void pasardatosabuffer(char*linea, ST_TREN tren){
-    strcat
-    *linea =itoa(tren.idTren);
-    linea=linea+1; //dejo un epacio
-    *linea=' ';
-    itoa (tren.pasajeros,linea,10);//cuento pos de pasajeros
-    linea = linea+1 //1 para el espacio
-    *linea=' ';
-    itoa (tren.combustible,linea,10);
-    linea=linea+1;
-    *linea=' ';
-    itoa(tren.tViaje,linea,10);
-    linea=linea+1;
-    *linea=' ';
-    itoa (tren.estado,linea,10);
-    *linea='\0';
-}*/
-/*void bufferatren(const char * linea, ST_TREN*tren){
-    int cant=0;
-    char* token=malloc(5);
-    memset(token,'\0',5);
-    token=strtok(token,' ');
-    tren->id=token;
-    while(token){
-        cant++;
-        if (cant==2)
-            strcpy(tren->pasajeros,token);
-        if (cant==3)
-            tren->estado=atoi(token);
-        if(cant==4)
-            tren->combustible=atoi(token);
-        token=strtok(NULL,' ');
-    }
-}*/
+
+void escribirMensaje(int sockTren,ST_TREN * tren) { 
+    char mensaje[MAX]; 
+    int i; 
+    for (;;) { 
+        bzero(mensaje, sizeof(mensaje)); 
+        printf(" \n Ingrese el mensaje: \n"); 
+        i = 0; 
+        while ((mensaje[i++] = getchar()) != '\n'); 
+        
+            if ((strncmp(mensaje, "info", 4)) == 0) { 
+                printf("Informacion del tren:\n"); 
+                printf("Modelo:%s\n",tren->idTren);
+                printf("Origen:%s\n",tren->estacionOrigen);
+                printf("Destino:%s\n",tren->estacionDestino);
+                printf("Cant de pasajeros:%s\n",tren->pasajeros);
+                printf("Litros de combustible:%d\n",tren->combustible);
+                printf("tiempo de viaje restante:%d\n",tren->tViaje);
+                printf("Estado:%s\n",tren->estado); // en transito, en anden, en estacion
+                printf("Motivo:%s\n",tren->motivo); // paso o anden
+          } 
+        if ((strncmp(mensaje, "enviar tren", 4)) == 0) { 
+                printf("El tren se  esta poniendo en marcha.\n"); 
+                enviarTren(tren, sockTren);
+
+            break; 
+        }
+
+            if ((strncmp(mensaje, "exit", 4)) == 0) { 
+            printf("te desconectaste.\n"); 
+            break; 
+        } else{
+        
+            send(sockTren, mensaje, sizeof(mensaje),0); 
+            //bzero(mensaje, sizeof(mensaje)); 
+            //recv(sockTren, mensaje, sizeof(mensaje),0); 
+           // printf("Estacion envio: %s \n", mensaje); 
+        } 
+        bzero(mensaje, sizeof(mensaje)); 
+    } 
+} 
+ 
