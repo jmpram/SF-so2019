@@ -1,3 +1,13 @@
+/**
+ * TRABAJO PRACTICO
+ * #SISTEMAS OPERATIVOS#
+ * PROF.: ALEJANDRO MOSTOVOI
+ * ALUMNOS:
+ * Amado Pablo
+ * Leguizamon Marcos
+ * Juan Ramasco
+ */
+
 
 #include <netdb.h> 
 #include <stdio.h> 

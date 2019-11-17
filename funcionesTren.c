@@ -1,3 +1,22 @@
+
+/**
+ * TRABAJO PRACTICO
+ * #SISTEMAS OPERATIVOS#
+ * PROF.: ALEJANDRO MOSTOVOI
+ * ALUMNOS:
+ * Amado Pablo
+ * Leguizamon Marcos
+ * Juan Ramasco
+ * /
+ 
+ /** 
+ * Manejo de tren
+ * 
+ * funciones del tren
+ * Manejos de los mensajes de la estructura tren cliente
+ */ 
+
+
 #include "tren.h"
 #include <stdio.h>
 #include <stdlib.h>

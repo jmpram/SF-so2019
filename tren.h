@@ -1,4 +1,21 @@
 
+/**
+ * TRABAJO PRACTICO
+ * #SISTEMAS OPERATIVOS#
+ * PROF.: ALEJANDRO MOSTOVOI
+ * ALUMNOS:
+ * Amado Pablo
+ * Leguizamon Marcos
+ * Juan Ramasco
+ * /
+ 
+ /** 
+ * Manejo de tren
+ * 
+ * Estructura Tren y cabeceras de las funciones tren.h
+ */ 
+
+ 
 #ifndef TREN_H 
 #define TREN_H
 #ifdef __cplusplus

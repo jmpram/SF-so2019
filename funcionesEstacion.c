@@ -1,3 +1,13 @@
+/**
+ * TRABAJO PRACTICO
+ * #SISTEMAS OPERATIVOS#
+ * PROF.: ALEJANDRO MOSTOVOI
+ * ALUMNOS:
+ * Amado Pablo
+ * Leguizamon Marcos
+ * Juan Ramasco
+ */
+
 #include "estacion.h"
 #include "tren.h"
 #include <stdio.h>
