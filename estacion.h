@@ -1,4 +1,20 @@
 
+/**
+ * TRABAJO PRACTICO
+ * #SISTEMAS OPERATIVOS#
+ * PROF.: ALEJANDRO MOSTOVOI
+ * ALUMNOS:
+ * Amado Pablo
+ * Leguizamon Marcos
+ * Juan Ramasco
+ * /
+ 
+ /** 
+ * Manejo de estación
+ * 
+ * Estructura Estación y cabeceras de las funciones Estación.h
+ */
+
 #ifndef TREN_H 
 #define TREN_H
 #ifdef __cplusplus
