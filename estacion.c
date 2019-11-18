@@ -31,7 +31,8 @@ int main(int argc , char *argv[]){
     int sockEstacion, new_socket , sockTrenes[30] ,  
           max_trenes = 30 , activity, i , valread , numDescripTren;   
     int max_numDescripTren;   
-    char buffer[MAX];   
+    char buffer[MAX];
+    ST_TREN cola[30];
          
     //puntero  los descriptores de los trenes
     fd_set descriptoresTrenes;   
@@ -108,7 +109,8 @@ int main(int argc , char *argv[]){
      
         //wait for an activity on one of the sockets , timeout is NULL ,  
         //so wait indefinitely  
-        activity = select( max_numDescripTren + 1 , &descriptoresTrenes , NULL , NULL , NULL);   
+        activity = select( max_numDescripTren + 1 , &descriptoresTrenes , NULL , 
+                NULL , NULL);   
        
         if ((activity < 0) && (errno!=EINTR))   
         {   
@@ -119,14 +121,16 @@ int main(int argc , char *argv[]){
         //then its an incoming connection  
         if (FD_ISSET(sockEstacion, &descriptoresTrenes))   
         {   
-            if ((new_socket = accept(sockEstacion,(struct sockaddr*)&estacionAddr,(socklen_t*)&addrlen))<0)   
+            if ((new_socket = accept(sockEstacion,(struct sockaddr*)&estacionAddr,
+                    (socklen_t*)&addrlen))<0)   
             {   
                 perror("error al aceptar la conexion");   
                 exit(EXIT_FAILURE);   
             }   
              
             //muestra al usuario el numero de socket - used in send and receive commands  
-            printf("nueva conexion, el socket descriptor es %d , ip is : %s , port : %d\n" , new_socket , inet_ntoa(estacionAddr.sin_addr),
+            printf("nueva conexion, el socket descriptor es %d , ip is : %s , "
+                    "port : %d\n" , new_socket , inet_ntoa(estacionAddr.sin_addr),
                 ntohs(estacionAddr.sin_port));  
                  
             //add new socket to array of sockets  
@@ -152,8 +156,10 @@ int main(int argc , char *argv[]){
                 //se chequea si alguien se desconecto o  se recibe el mensaje del tren 
               if ((valread = read( numDescripTren , buffer, MAX)) == 0){   
                //Somebody disconnected , get his details and print  
-            getpeername(numDescripTren , (struct sockaddr*)&estacionAddr ,(socklen_t*)&addrlen );   
-            printf("Host disconnected , ip %s , port %d \n" ,inet_ntoa(estacionAddr.sin_addr) ,ntohs(estacionAddr.sin_port));   
+            getpeername(numDescripTren , (struct sockaddr*)&estacionAddr ,
+                    (socklen_t*)&addrlen );   
+            printf("Host disconnected , ip %s , port %d \n" ,
+                    inet_ntoa(estacionAddr.sin_addr) ,ntohs(estacionAddr.sin_port));   
                          
                      // CIERRA EL SOCKET DEL TREN QUE SE DESCONECTO Y MARCA LA LISTA COMO 0 PRAA REUSAR
                     close( numDescripTren );   
