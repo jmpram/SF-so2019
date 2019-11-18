@@ -37,25 +37,22 @@ typedef struct{
     
 int main(int argc , char *argv[]){ 
 
-char buffer[MAX]; 
-memset(buffer,'\0' ,MAX);
-ST_ESTACION estacion3;
-estacion3.sId=3;
-estacion3.usoAnden=1;
+    char buffer[MAX]; 
+    memset(buffer,'\0' ,MAX);
+    ST_ESTACION estacion3;
+    estacion3.sId=3;
+    estacion3.usoAnden=1;
 
-struct sockaddr_in estacionAddr;  
-int option = TRUE;   
-int sockEstacion2, new_socket , sockTrenes[30] ,  
-max_trenes = 30 , activity, i , valread , numDescripTren;   
-int max_numDescripTren;     
-//puntero  los descriptores de los trenes
-fd_set descriptoresTrenes;   
-
-
+    struct sockaddr_in estacionAddr;  
+    int option = TRUE;   
+    int sockEstacion2, new_socket , sockTrenes[30] ,  
+    max_trenes = 30 , activity, i , valread , numDescripTren;   
+    int max_numDescripTren;
+    ST_TREN cola[30];
+    //puntero  los descriptores de los trenes
+    fd_set descriptoresTrenes;   
     char *message = (char*)malloc(sizeof(char)*MAX);   
     memset(message,'\0' ,MAX);
-
-
     //se inicilizan el array socket trenes a valores 0
     for (i = 0; i < max_trenes; i++){   
         sockTrenes[i] = 0;   
@@ -68,7 +65,8 @@ fd_set descriptoresTrenes;
      }   
      
     //se configura la estacion para que reciba multiples conexiones   
-    if( setsockopt(sockEstacion2, SOL_SOCKET, SO_REUSEADDR, (char *)&option,sizeof(option)) < 0){   
+    if( setsockopt(sockEstacion2, SOL_SOCKET, SO_REUSEADDR, (char *)&option,
+            sizeof(option)) < 0){   
         perror("error en las opciones del socket estacion");   
         exit(EXIT_FAILURE);   
     }   
@@ -79,8 +77,8 @@ fd_set descriptoresTrenes;
     estacionAddr.sin_port = htons(PORT);   
          
     //enlaza el socket al  localhost 
-    if (bind(sockEstacion2, (struct sockaddr *)&estacionAddr, sizeof(estacionAddr))<0)   
-    {   
+    if (bind(sockEstacion2, (struct sockaddr *)&estacionAddr, 
+            sizeof(estacionAddr))<0){   
         perror("fallo en el enlace");   
         exit(EXIT_FAILURE);   
     }   
@@ -110,7 +108,7 @@ fd_set descriptoresTrenes;
         for ( i = 0 ; i < max_trenes ; i++)   
         {   
             //socket descriptor  
-           numDescripTren = sockTrenes[i];   
+            numDescripTren = sockTrenes[i];   
                  
             //if valid socket descriptor then add to read list  
             if(numDescripTren > 0)   
@@ -123,7 +121,8 @@ fd_set descriptoresTrenes;
      
         //wait for an activity on one of the sockets , timeout is NULL ,  
         //so wait indefinitely  
-        activity = select( max_numDescripTren + 1 , &descriptoresTrenes , NULL , NULL , NULL);   
+        activity = select( max_numDescripTren + 1 , &descriptoresTrenes , NULL , 
+                NULL , NULL);   
        
         if ((activity < 0) && (errno!=EINTR))   
         {   
@@ -134,14 +133,16 @@ fd_set descriptoresTrenes;
         //then its an incoming connection  
         if (FD_ISSET(sockEstacion2, &descriptoresTrenes))   
         {   
-            if ((new_socket = accept(sockEstacion2,(struct sockaddr*)&estacionAddr,(socklen_t*)&addrlen))<0)   
+            if ((new_socket = accept(sockEstacion2,(struct sockaddr*)&estacionAddr,
+                    (socklen_t*)&addrlen))<0)   
             {   
                 perror("error al aceptar la conexion");   
                 exit(EXIT_FAILURE);   
             }   
              
             //muestra al usuario el numero de socket - used in send and receive commands  
-            printf("nueva conexion, el socket descriptor es %d , ip is : %s , port : %d\n" , new_socket , inet_ntoa(estacionAddr.sin_addr),
+            printf("nueva conexion, el socket descriptor es %d , ip is : %s , "
+                    "port : %d\n" , new_socket , inet_ntoa(estacionAddr.sin_addr),
                 ntohs(estacionAddr.sin_port));  
                  
             //add new socket to array of sockets  
@@ -163,23 +164,25 @@ fd_set descriptoresTrenes;
 
             numDescripTren = sockTrenes[i];   
                  
-        if (FD_ISSET( numDescripTren , &descriptoresTrenes)){   
+            if (FD_ISSET( numDescripTren , &descriptoresTrenes)){   
                 //se chequea si alguien se desconecto o  se recibe el mensaje del tren 
-              if ((valread = read( numDescripTren , buffer, MAX)) == 0){   
-               //Somebody disconnected , get his details and print  
-            getpeername(numDescripTren , (struct sockaddr*)&estacionAddr ,(socklen_t*)&addrlen );   
-            printf("Host disconnected , ip %s , port %d \n" ,inet_ntoa(estacionAddr.sin_addr) ,ntohs(estacionAddr.sin_port));   
+                if ((valread = read( numDescripTren , buffer, MAX)) == 0){   
+                //Somebody disconnected , get his details and print  
+                    getpeername(numDescripTren , (struct sockaddr*)&estacionAddr ,
+                    (socklen_t*)&addrlen );   
+                    printf("Host disconnected , ip %s , port %d \n" ,
+                    inet_ntoa(estacionAddr.sin_addr) ,ntohs(estacionAddr.sin_port));   
                          
                      // CIERRA EL SOCKET DEL TREN QUE SE DESCONECTO Y MARCA LA LISTA COMO 0 PRAA REUSAR
                     close( numDescripTren );   
                     sockTrenes[i] = 0;   
-                }    else {  
+                }else {  
                     printf("Tren %d: %s",new_socket, buffer);
-                // ESTO PERMITE ENVIAR UN MENSAJE AL TREN  SERIA UTILIZADO PARA LOS COMANDOS
-                // ACA DEBERIAMOS IMPLEMENTAR UNA FUNCION PARECIDA A LA USADA EN TREN1.C
+                    // ESTO PERMITE ENVIAR UN MENSAJE AL TREN  SERIA UTILIZADO PARA LOS COMANDOS
+                    // ACA DEBERIAMOS IMPLEMENTAR UNA FUNCION PARECIDA A LA USADA EN TREN1.C
 					//gets(message);  
-                   // send(numDescripTren , message , strlen(message), 0 );  
-                   // memset(message,'\0' ,MAX);
+                    // send(numDescripTren , message , strlen(message), 0 );  
+                    // memset(message,'\0' ,MAX);
                 }   
             }   
         }   
