@@ -7,6 +7,9 @@
  * Leguizamon Marcos
  * Juan Ramasco
  */
+/**
+ *tren.c
+ */
 #include <stdbool.h>
 #include <netdb.h> 
 #include <stdio.h> 

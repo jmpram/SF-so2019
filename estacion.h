@@ -10,12 +10,14 @@
  * /
  
  /** 
+ * 
+ * estacion.h
  * Manejo de estación
  * 
  * Estructura Estación y cabeceras de las funciones Estación.h
  */
 
-#ifndef TREN_H 
+#ifndef TREN_H
 #define TREN_H
 #include "tren.h"
 #include <stdbool.h> 
@@ -39,9 +41,15 @@ typedef struct {
 typedef struct {	
     int sId;
     bool usoAnden;
-   ST_TREN regTrenes[5];
+    ST_TREN regTrenes[5];
 
 }ST_ESTACION;
+
+void printestacion(ST_TREN anden,ST_TREN V[],int n,int usoanden);
+
+ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int &usoanden);
+
+void escribirMensaje(ST_TREN &anden,ST_TREN v[],int n,int u,int socktren[]);
 
 void itoa(int valor, char *linea);
 
@@ -51,9 +59,13 @@ void decodificarTren(char* buffer,ST_TREN * tren);
 
 void escribirRegTrenes(ST_TREN tren);
 
+void inicializar (int v[],int n);
+
+void inicializarcola (ST_TREN v[],int n);
+
+void balanceo(ST_TREN v[],int vsock[],int n);
 
 #ifdef __cplusplus
 }
 
 #endif
-#endif /* TREN_H */

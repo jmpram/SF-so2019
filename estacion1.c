@@ -7,6 +7,11 @@
  * Leguizamon Marcos
  * Juan Ramasco
  */
+/*
+ * 
+ * estacion1.c
+ * 
+ */
 
 //Example code: A simple server side code, which echos back the received message. 
 //Handle multiple socket connections with select and fd_set on Linux 
@@ -23,7 +28,8 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 #include "tren.h"
 #include "estacion.h"
-#define MAX 80    
+#define MAX 80
+#define MAX_TRENES 30
 #define TRUE 1 
 #define FALSE 0 
 #define PORT 8080
@@ -38,12 +44,14 @@ int main(int argc , char *argv[]){
     memset(buffer,'\0' ,MAX);
     struct sockaddr_in estacionAddr;  
     int option = TRUE;   
-    int sockEstacion, new_socket , sockTrenes[30] , max_trenes = 30 , activity, i , valread , numDescripTren;   
+    int sockEstacion, new_socket , sockTrenes[MAX_TRENES] , max_trenes = 30 , 
+            activity, i , valread , numDescripTren;   
     int max_numDescripTren, sockEst1;   
-    ST_TREN cola[30];
+    ST_TREN cola[MAX_TRENES];
+    inicializarcola(cola,MAX_TRENES);
     //puntero  los descriptores de los trenes
     fd_set descriptoresTrenes;   
-/////////////////////////////////////////////////////////////////
+
     struct sockaddr_in estacion2; 
     sockEst1 = socket(AF_INET, SOCK_STREAM, 0); 
     if (sockEst1 == -1) { 
@@ -71,9 +79,8 @@ int main(int argc , char *argv[]){
 ////////////////////////////////////////////////////////////////
 
     //se inicilizan el array socket trenes a valores 0
-    for (i = 0; i < max_trenes; i++){   
-        sockTrenes[i] = 0;   
-    }   
+    inicializar (sockTrenes,MAX_TRENES);
+
          
     //se crea el socket estacion 
     if( (sockEstacion= socket(AF_INET , SOCK_STREAM , 0)) == 0){   
@@ -101,7 +108,7 @@ int main(int argc , char *argv[]){
     printf("la estacion esta escuchando en el puerto: %d \n", PORT); 
      
     //try to specify maximum of 3 pending connections for the master socket  
-    if (listen(sockEstacion, 5) < 0){   
+    if (listen(sockEstacion, MAX_TRENES) < 0){   
         perror("La Estacion ya no puede recibir mas trenes");   
         exit(EXIT_FAILURE);   
     }   
@@ -119,7 +126,7 @@ int main(int argc , char *argv[]){
         max_numDescripTren = sockEstacion;   
              
         //add child sockets to set  
-        for ( i = 0 ; i < max_trenes ; i++){   
+        for ( i = 0 ; i < MAX_TRENES ; i++){   
             //socket descriptor  
            numDescripTren = sockTrenes[i];   
                  
@@ -158,7 +165,7 @@ int main(int argc , char *argv[]){
                 //  ACA   SE DEBERIA HACER EL SEND ??? 
                  
             //add new socket to array of sockets  
-            for (i = 0; i < max_trenes; i++){   
+            for (i = 0; i < MAX_TRENES; i++){   
                 //if position is empty  
                 if( sockTrenes[i] == 0 ){   
                     sockTrenes[i] = new_socket;   
@@ -166,10 +173,12 @@ int main(int argc , char *argv[]){
                     break;   
                 }   
             }   
+            
         }   
+        
              
         //else its some IO operation on some other socket 
-        for (i = 0; i < max_trenes; i++){ 
+        for (i = 0; i < MAX_TRENES; i++){ 
 
             numDescripTren = sockTrenes[i];   
                  
@@ -183,13 +192,17 @@ int main(int argc , char *argv[]){
                       inet_ntoa(estacionAddr.sin_addr) ,ntohs(estacionAddr.sin_port));   
                     // CIERRA EL SOCKET DEL TREN QUE SE DESCONECTO Y MARCA LA LISTA COMO 0 PRAA REUSAR
                     close( numDescripTren );   
-                    sockTrenes[i] = 0;   
+                    sockTrenes[i] = 0;
+                    cola[i].tViaje=0;
+                    balanceo(cola,sockTrenes,MAX_TRENES);
                 }    else {  
 
                         tipoEnt=identificarEntidad(buffer);
                         if(tipoEnt=='T'){
 
                             decoficarTren(buffer,&tren);
+                            cola[i]=tren;
+                            balanceo(cola,sockTrenes,MAX_TRENES);
                         }
                     
                     printf("Tren %d: %s",new_socket, buffer);

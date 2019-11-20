@@ -7,6 +7,9 @@
  * Leguizamon Marcos
  * Juan Ramasco
  */
+/*
+ * funcionesEstaciones.c 
+ */
 
 #include "estacion.h"
 #include "tren.h"
@@ -15,6 +18,40 @@
 #include <string.h>
 #include <stdbool.h>
 #define MAX 80
+
+void inicializar (int v[],int n){     
+    for (i = 0; i < n; i++){   
+        v[i] = 0;
+    }
+}
+void inicializarcola (ST_TREN v[],int n){     
+    for (i = 0; i < n; i++){   
+        v[i].combustible=0;
+        v[i].estacionDestino='\0';
+        v[i].estacionOrigen='\0';
+        v[i].estado='\0';
+        v[i].idTren='\0';
+        v[i].motivo='\0';
+        v[i].pasajeros='\0';
+        v[i].tViaje=0;
+    }
+}
+void balanceo(ST_TREN v[],int vsock[],int n){
+    int aux1=0;
+    ST_TREN aux2;
+    for (int i=0, i<n-1, i++){
+        for(int j=0, j<n-1-i,j++){
+            if (((vsock[j]==0)&&(vsock[j+1]!=0))||(v[j].tViaje>v[j+1].tViaje)){
+                aux2=v[j];
+                aux1=vsock[j];
+                v[j]=v[j+1];
+                vsock[j]=vsock[j+1];
+                v[j+1]=aux2;
+                vsock[j+1]=aux1;
+            }
+        }
+    }
+}
 
 void itoa(int valor, char *linea){
     sprintf(linea,"%d",valor); 
@@ -87,11 +124,83 @@ void escribirRegTrenes(ST_TREN tren){
     if(archTrenes==NULL){
         exit(EXIT_FAILURE);
     }
-    fprintf(archTrenes,"%s %s %s %s %s %s %s %s","Id Tren:", tren.idTren , "Estacion Origen:", 
-        tren.estacionOrigen , "Estacion Destino:", tren.estacionDestino ,"Motivo:", tren.motivo);
-
+    fprintf(archTrene, "Id Tren: %s Combustible: %d Estado: %s Pasajeros %s Tiempo de Viaje %d"
+                " Estacion Origen: %s Estacion Destino: %s Motivo: %s\n",
+                tren.idTren ,tren.combustible,tren.estado,tren.pasajeros,
+                tren.tViaje,tren.estacionOrigen ,tren.estacionDestino , tren.motivo);
     fclose(archTrenes);
 }
+
+void printestacion(ST_TREN anden , ST_TREN v[], int n, int usoanden){
+    printf("ESTADO DE LA ESTACIÓN");
+    if (usoanden==1){
+        printf("Anden \n");
+        printf("Id Tren: %s Combustible: %d Estado: %s Pasajeros %s Tiempo de Viaje %d"
+                " Estacion Origen: %s Estacion Destino: %s Motivo: %s\n",
+                anden.idTren ,anden.combustible,anden.estado,anden.pasajeros,
+                anden.tViaje,anden.estacionOrigen ,anden.estacionDestino , anden.motivo);
+    } else{
+        printf("No hay trenes en el anden");
+    }
+    
+    for (int=0,i<n,i++){
+        printf("Trenes en cola de espera: \n");
+        printf("Id Tren: %s Combustible: %d Estado: %s Pasajeros %s Tiempo de Viaje %d"
+                " Estacion Origen: %s Estacion Destino: %s Motivo: %s\n",
+                v[i].idTren ,v[i].combustible,v[i].estado,v[i].pasajeros,
+                v[i].tViaje,v[i].estacionOrigen ,v[i].estacionDestino , v[i].motivo);
+    }   
+}   
+
+ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int &usoanden){
+    
+    ST_TREN aux;
+    usoanden=1;
+    aux=v[0];
+    socktren[0]=0;
+    v[0].tViaje=0;
+    balanceo(v,socktren,n);
+    return aux;
+}
+void escribirMensaje(ST_TREN &anden,ST_TREN v[],int n,int u,int socktren[]) { 
+    char mensaje[MAX]; 
+    int i; 
+    for (;;) { 
+        bzero(mensaje, sizeof(mensaje)); 
+        printf(" \n Ingrese el mensaje: \n"); 
+        i = 0; 
+        while ((mensaje[i++] = getchar()) != '\n'); 
+        
+            if ((strncmp(mensaje, "info", 4)) == 0) { 
+                printestacion(anden,v,n,u);
+            } 
+            if ((strncmp(mensaje, "enviar tren", 4)) == 0) { 
+                printf("El tren se  esta poniendo en marcha.\n"); 
+                enviarTren(tren, socktren);
+
+            break; 
+            }
+            if((strncmp(mensaje, "enviar anden", 4)) == 0){
+                if (u==0){
+                    anden=enviarAnden(v,socktren,n,u);
+                }else{
+                    printf("el anden está siendo utilizado");
+                }
+            }
+            if ((strncmp(mensaje, "exit", 4)) == 0) { 
+            printf("te desconectaste.\n"); 
+            break; 
+        } else{
+        
+            send(sockTren, mensaje, sizeof(mensaje),0); 
+            //bzero(mensaje, sizeof(mensaje)); 
+            //recv(sockTren, mensaje, sizeof(mensaje),0); 
+           // printf("Estacion envio: %s \n", mensaje); 
+        } 
+        bzero(mensaje, sizeof(mensaje)); 
+    } 
+} 
+
 /*
 void create(ST_LISTA **list){
     *list=NULL;

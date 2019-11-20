@@ -9,7 +9,9 @@
  * Juan Ramasco
  * /
  
- /** 
+ /**
+ * 
+ * tren.h 
  * Manejo de tren
  * 
  * Estructura Tren y cabeceras de las funciones tren.h

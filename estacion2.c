@@ -8,6 +8,12 @@
  * Juan Ramasco
  */
 
+/*
+ *
+ * estacion2.c
+ * 
+ */
+
 //Example code: A simple server side code, which echos back the received message. 
 //Handle multiple socket connections with select and fd_set on Linux 
 #include <stdbool.h>
@@ -23,7 +29,8 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 #include "tren.h"
 #include "estacion.h"
-#define MAX 80    
+#define MAX 80
+#define MAX_TRENES 30
 #define TRUE 1 
 #define FALSE 0 
 #define PORT 5080
@@ -42,21 +49,20 @@ int main(int argc , char *argv[]){
     ST_ESTACION estacion3;
     estacion3.sId=3;
     estacion3.usoAnden=1;
-
+    ST_TREN tren;
     struct sockaddr_in estacionAddr;  
     int option = TRUE;   
     int sockEstacion2, new_socket , sockTrenes[30] ,  
     max_trenes = 30 , activity, i , valread , numDescripTren;   
     int max_numDescripTren;
-    ST_TREN cola[30];
+    ST_TREN cola[MAX_TRENES];
+    inicializarcola(cola, MAX_TRENES);
     //puntero  los descriptores de los trenes
     fd_set descriptoresTrenes;   
     char *message = (char*)malloc(sizeof(char)*MAX);   
     memset(message,'\0' ,MAX);
     //se inicilizan el array socket trenes a valores 0
-    for (i = 0; i < max_trenes; i++){   
-        sockTrenes[i] = 0;   
-    }   
+    inicializar (sockTrenes, MAX_TRENES); 
          
     //se crea el socket estacion 
     if( (sockEstacion2= socket(AF_INET , SOCK_STREAM , 0)) == 0){   
@@ -85,7 +91,7 @@ int main(int argc , char *argv[]){
     printf("la estacion esta escuchando en el puerto: %d \n", PORT);   
          
     //try to specify maximum of 3 pending connections for the master socket  
-    if (listen(sockEstacion2, 5) < 0)   
+    if (listen(sockEstacion2, MAX_TRENES) < 0)   
     {   
         perror("La Estacion ya no puede recibir mas trenes");   
         exit(EXIT_FAILURE);   
@@ -105,7 +111,7 @@ int main(int argc , char *argv[]){
         max_numDescripTren = sockEstacion2;   
              
         //add child sockets to set  
-        for ( i = 0 ; i < max_trenes ; i++)   
+        for ( i = 0 ; i < MAX_TRENES ; i++)   
         {   
             //socket descriptor  
             numDescripTren = sockTrenes[i];   
@@ -146,7 +152,7 @@ int main(int argc , char *argv[]){
                 ntohs(estacionAddr.sin_port));  
                  
             //add new socket to array of sockets  
-            for (i = 0; i < max_trenes; i++)   
+            for (i = 0; i < MAX_TRENES; i++)   
             {   
                 //if position is empty  
                 if( sockTrenes[i] == 0 )   
@@ -160,7 +166,7 @@ int main(int argc , char *argv[]){
         }   
              
         //else its some IO operation on some other socket 
-        for (i = 0; i < max_trenes; i++){ 
+        for (i = 0; i < MAX_TRENES; i++){ 
 
             numDescripTren = sockTrenes[i];   
                  
@@ -175,8 +181,17 @@ int main(int argc , char *argv[]){
                          
                      // CIERRA EL SOCKET DEL TREN QUE SE DESCONECTO Y MARCA LA LISTA COMO 0 PRAA REUSAR
                     close( numDescripTren );   
-                    sockTrenes[i] = 0;   
-                }else {  
+                    sockTrenes[i] = 0;
+                    cola[i].tViaje=0;
+                    balanceo(cola, sockTrenes,MAX_TRENES);
+                }else { 
+                    tipoEnt=identificarEntidad(buffer);
+                        if(tipoEnt=='T'){
+
+                            decoficarTren(buffer,&tren);
+                            cola[i]=tren;
+                            balanceo(cola,sockTrenes,MAX_TRENES);
+                        }
                     printf("Tren %d: %s",new_socket, buffer);
                     // ESTO PERMITE ENVIAR UN MENSAJE AL TREN  SERIA UTILIZADO PARA LOS COMANDOS
                     // ACA DEBERIAMOS IMPLEMENTAR UNA FUNCION PARECIDA A LA USADA EN TREN1.C
