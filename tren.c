@@ -10,6 +10,7 @@
 /**
  *tren.c
  */
+
 #include <stdbool.h>
 #include <netdb.h> 
 #include <stdio.h> 
@@ -26,11 +27,11 @@
 
  
 int main(int argc, char * argv[]) { 
- 	int sockTren; 
+    int sockTren; 
     ST_TREN tren;
     createTren(&tren);
     struct sockaddr_in estacionAddr;
-
+    
     FILE * config=NULL;
     char * linea=(char*)malloc(sizeof (char) *MAX);
     memset(linea,'\0',MAX);
@@ -58,7 +59,7 @@ int main(int argc, char * argv[]) {
     else
         printf("Se creo el tren..\n"); 
         bzero(&estacionAddr, sizeof(estacionAddr));  
-  
+    
     // se asigna la ip y el puerto a usar
     estacionAddr.sin_family = AF_INET; 
     estacionAddr.sin_addr.s_addr = INADDR_ANY; 
@@ -71,10 +72,11 @@ int main(int argc, char * argv[]) {
     } 
     else
         printf("Esta conectado con la estacion..\n"); 
-  
+    
     
     escribirMensaje(sockTren, &tren); 
   
     
     close(sockTren); 
+    
 } 

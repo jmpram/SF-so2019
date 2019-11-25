@@ -17,8 +17,9 @@
  * Estructura Estación y cabeceras de las funciones Estación.h
  */
 
-#ifndef TREN_H
-#define TREN_H
+
+
+
 #include "tren.h"
 #include <stdbool.h> 
 
@@ -26,7 +27,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+/*typedef struct {
 	
     char idTren[8];
     char estacionOrigen[5];
@@ -36,7 +37,7 @@ typedef struct {
     int tViaje;
     char estado[10];
     char motivo[10];  
-} ST_TREN;
+} ST_TREN;*/
 
 typedef struct {	
     int sId;
@@ -47,11 +48,13 @@ typedef struct {
 
 void printestacion(ST_TREN anden,ST_TREN V[],int n,int usoanden);
 
-ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int &usoanden);
+ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int usoanden);
 
-void escribirMensaje(ST_TREN &anden,ST_TREN v[],int n,int u,int socktren[]);
+void escribirMensajeEst(ST_TREN anden,ST_TREN v[],int n,int u,int socktren[]);
 
-void itoa(int valor, char *linea);
+//void itoa(char *linea,int valor);
+
+void enviarTrenE(ST_TREN * tren, int sockTren);
 
 char identificarEntidad(char* buffer);
 
@@ -69,3 +72,4 @@ void balanceo(ST_TREN v[],int vsock[],int n);
 }
 
 #endif
+

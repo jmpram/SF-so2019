@@ -35,14 +35,14 @@
 #define FALSE 0 
 #define PORT 5080
 
-typedef struct{
+/*typedef struct{
     int sId;
     int usoAnden;
     ST_TREN regTrenes[5];
 
-}ST_ESTACION;
+}ST_ESTACION;*/
     
-int main(int argc , char *argv[]){ 
+int main (int argc , char *argv[]){ 
 
     char buffer[MAX]; 
     memset(buffer,'\0' ,MAX);
@@ -63,7 +63,7 @@ int main(int argc , char *argv[]){
     memset(message,'\0' ,MAX);
     //se inicilizan el array socket trenes a valores 0
     inicializar (sockTrenes, MAX_TRENES); 
-         
+    char tipoEnt;     
     //se crea el socket estacion 
     if( (sockEstacion2= socket(AF_INET , SOCK_STREAM , 0)) == 0){   
         perror("creacion de estacion fallida");   
@@ -188,7 +188,7 @@ int main(int argc , char *argv[]){
                     tipoEnt=identificarEntidad(buffer);
                         if(tipoEnt=='T'){
 
-                            decoficarTren(buffer,&tren);
+                            decodificarTren(buffer,&tren);
                             cola[i]=tren;
                             balanceo(cola,sockTrenes,MAX_TRENES);
                         }

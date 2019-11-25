@@ -53,10 +53,4 @@ void escribirMensaje(int sockTren,ST_TREN * tren);
 
 void registrarTren(ST_TREN * tren);
 
-
-
-#ifdef __cplusplus
-}
-
-#endif
 #endif /* TREN_H */

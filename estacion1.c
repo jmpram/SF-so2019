@@ -34,10 +34,9 @@
 #define FALSE 0 
 #define PORT 8080
 
-int main(int argc , char *argv[]){ 
+int main (int argc , char *argv[]){ 
 
     ST_TREN tren;
-
     char tipoEnt;
     int conectado=0;
     char buffer[MAX]; 
@@ -200,7 +199,7 @@ int main(int argc , char *argv[]){
                         tipoEnt=identificarEntidad(buffer);
                         if(tipoEnt=='T'){
 
-                            decoficarTren(buffer,&tren);
+                            decodificarTren(buffer,&tren);
                             cola[i]=tren;
                             balanceo(cola,sockTrenes,MAX_TRENES);
                         }

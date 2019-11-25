@@ -8,11 +8,10 @@
  * Juan Ramasco
  */
 /*
- * funcionesEstaciones.c 
+ * funcionesEstacion.c 
  */
-
-#include "estacion.h"
 #include "tren.h"
+#include "estacion.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,27 +19,27 @@
 #define MAX 80
 
 void inicializar (int v[],int n){     
-    for (i = 0; i < n; i++){   
+    for (int i = 0; i < n; i++){   
         v[i] = 0;
     }
 }
 void inicializarcola (ST_TREN v[],int n){     
-    for (i = 0; i < n; i++){   
+    for (int i = 0; i < n; i++){   
         v[i].combustible=0;
-        v[i].estacionDestino='\0';
-        v[i].estacionOrigen='\0';
-        v[i].estado='\0';
-        v[i].idTren='\0';
-        v[i].motivo='\0';
-        v[i].pasajeros='\0';
+        v[i].estacionDestino[0]='\0';
+        v[i].estacionOrigen[0]='\0';
+        v[i].estado[0]='\0';
+        v[i].idTren[0]='\0';
+        v[i].motivo[0]='\0';
+        v[i].pasajeros[0]='\0';
         v[i].tViaje=0;
     }
 }
 void balanceo(ST_TREN v[],int vsock[],int n){
     int aux1=0;
     ST_TREN aux2;
-    for (int i=0, i<n-1, i++){
-        for(int j=0, j<n-1-i,j++){
+    for (int i=0; i<(n-1); i++){
+        for(int j=0; j<(n-1-i);j++){
             if (((vsock[j]==0)&&(vsock[j+1]!=0))||(v[j].tViaje>v[j+1].tViaje)){
                 aux2=v[j];
                 aux1=vsock[j];
@@ -53,10 +52,16 @@ void balanceo(ST_TREN v[],int vsock[],int n){
     }
 }
 
-void itoa(int valor, char *linea){
+/*void itoa( char *linea,int valor){
     sprintf(linea,"%d",valor); 
-}
+}*/
+void enviarTrenE(ST_TREN * tren, int sockTren){
 
+    char * mensaje=(char*)malloc(sizeof(char)*MAX);
+	codificarMsj(mensaje,tren);
+    send(sockTren, mensaje, sizeof(mensaje),0); 
+    free(mensaje);
+}
 char identificarEntidad(char * buffer){
     char tipoEnt;   
     int i=0;
@@ -124,7 +129,7 @@ void escribirRegTrenes(ST_TREN tren){
     if(archTrenes==NULL){
         exit(EXIT_FAILURE);
     }
-    fprintf(archTrene, "Id Tren: %s Combustible: %d Estado: %s Pasajeros %s Tiempo de Viaje %d"
+    fprintf(archTrenes, "Id Tren: %s Combustible: %d Estado: %s Pasajeros %s Tiempo de Viaje %d"
                 " Estacion Origen: %s Estacion Destino: %s Motivo: %s\n",
                 tren.idTren ,tren.combustible,tren.estado,tren.pasajeros,
                 tren.tViaje,tren.estacionOrigen ,tren.estacionDestino , tren.motivo);
@@ -143,8 +148,8 @@ void printestacion(ST_TREN anden , ST_TREN v[], int n, int usoanden){
         printf("No hay trenes en el anden");
     }
     
-    for (int=0,i<n,i++){
-        printf("Trenes en cola de espera: \n");
+    printf("Trenes en cola de espera: \n");
+    for (int i=0;i<n;i++){
         printf("Id Tren: %s Combustible: %d Estado: %s Pasajeros %s Tiempo de Viaje %d"
                 " Estacion Origen: %s Estacion Destino: %s Motivo: %s\n",
                 v[i].idTren ,v[i].combustible,v[i].estado,v[i].pasajeros,
@@ -152,7 +157,7 @@ void printestacion(ST_TREN anden , ST_TREN v[], int n, int usoanden){
     }   
 }   
 
-ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int &usoanden){
+ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int usoanden){
     
     ST_TREN aux;
     usoanden=1;
@@ -162,7 +167,7 @@ ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int &usoanden){
     balanceo(v,socktren,n);
     return aux;
 }
-void escribirMensaje(ST_TREN &anden,ST_TREN v[],int n,int u,int socktren[]) { 
+void escribirMensajeEst(ST_TREN anden,ST_TREN v[],int n,int u,int socktren[]) { 
     char mensaje[MAX]; 
     int i; 
     for (;;) { 
@@ -172,17 +177,17 @@ void escribirMensaje(ST_TREN &anden,ST_TREN v[],int n,int u,int socktren[]) {
         while ((mensaje[i++] = getchar()) != '\n'); 
         
             if ((strncmp(mensaje, "info", 4)) == 0) { 
-                printestacion(anden,v,n,u);
+                printestacion(anden,v,n,&u);
             } 
             if ((strncmp(mensaje, "enviar tren", 4)) == 0) { 
                 printf("El tren se  esta poniendo en marcha.\n"); 
-                enviarTren(tren, socktren);
+                enviarTrenE(&anden, socktren[1]);
 
             break; 
             }
             if((strncmp(mensaje, "enviar anden", 4)) == 0){
                 if (u==0){
-                    anden=enviarAnden(v,socktren,n,u);
+                    anden=enviarAnden(v,socktren,n,&u);
                 }else{
                     printf("el anden está siendo utilizado");
                 }
@@ -192,7 +197,7 @@ void escribirMensaje(ST_TREN &anden,ST_TREN v[],int n,int u,int socktren[]) {
             break; 
         } else{
         
-            send(sockTren, mensaje, sizeof(mensaje),0); 
+            send(socktren, mensaje, sizeof(mensaje),0); 
             //bzero(mensaje, sizeof(mensaje)); 
             //recv(sockTren, mensaje, sizeof(mensaje),0); 
            // printf("Estacion envio: %s \n", mensaje); 
