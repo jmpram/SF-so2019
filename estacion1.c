@@ -37,6 +37,7 @@
 int main (int argc , char *argv[]){ 
 
     ST_TREN tren;
+    createTren(&tren);
     char tipoEnt;
     int conectado=0;
     char buffer[MAX]; 
@@ -187,29 +188,29 @@ int main (int argc , char *argv[]){
                 //Somebody disconnected , get his details and print  
                     getpeername(numDescripTren , (struct sockaddr*)&estacionAddr ,
                       (socklen_t*)&addrlen );   
-                    printf("Host disconnected , ip %s , port %d \n" ,
-                      inet_ntoa(estacionAddr.sin_addr) ,ntohs(estacionAddr.sin_port));   
+                    printf("Host disconnected , ip %s , port %d \n" ,inet_ntoa(estacionAddr.sin_addr)
+                    ,ntohs(estacionAddr.sin_port));   
                     // CIERRA EL SOCKET DEL TREN QUE SE DESCONECTO Y MARCA LA LISTA COMO 0 PRAA REUSAR
                     close( numDescripTren );   
                     sockTrenes[i] = 0;
                     cola[i].tViaje=0;
                     balanceo(cola,sockTrenes,MAX_TRENES);
                 }    else {  
-
+                        printf("msj recibido:%s\n",buffer);
                         tipoEnt=identificarEntidad(buffer);
                         if(tipoEnt=='T'){
-
-                            decodificarTren(buffer,&tren);
+                            decodificarTren(buffer,&tren); 
+                            printf("tren id: %s estado:%s\n", tren.idTren,tren.estado);
                             cola[i]=tren;
                             balanceo(cola,sockTrenes,MAX_TRENES);
-                        }
+                         }
                     
                     printf("Tren %d: %s",new_socket, buffer);
 
-                // ESTO PERMITE ENVIAR UN MENSAJE AL TREN  SERIA UTILIZADO PARA LOS COMANDOS
-                // ACA DEBERIAMOS IMPLEMENTAR UNA FUNCION PARECIDA A LA USADA EN TREN1.C
-					//gets 
-                   // send
+                     // ESTO PERMITE ENVIAR UN MENSAJE AL TREN  SERIA UTILIZADO PARA LOS COMANDOS
+                     // ACA DEBERIAMOS IMPLEMENTAR UNA FUNCION PARECIDA A LA USADA EN TREN1.C
+					 //gets 
+                     // send
                     }   
             }   
         }   

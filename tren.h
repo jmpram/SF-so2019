@@ -45,7 +45,7 @@ void cargarTren(const char* linea,ST_TREN * tren);
 
 void enviarTren(ST_TREN * tren, int sockTren);
 
-void concatenarMsj (char *buffer,char *aux, char* msj, char * coma);
+void concatenarMsj (char *buffer,char *aux, char* msj);
 
 void codificarMsj(char * buffer, ST_TREN * tren);
 

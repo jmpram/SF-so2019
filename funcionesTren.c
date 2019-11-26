@@ -96,72 +96,71 @@ void itoa(char *linea,int valor){
 void enviarTren(ST_TREN * tren, int sockTren){
 
     char * mensaje=(char*)malloc(sizeof(char)*MAX);
+    memset(mensaje,'\0',MAX);
 	codificarMsj(mensaje,tren);
-    send(sockTren, mensaje, sizeof(mensaje),0); 
+    send(sockTren, mensaje,strlen(mensaje),0); 
     free(mensaje);
 }
-void concatenarMsj (char *buffer,char *aux, char* msj, char * coma){
-    
-    strcpy(aux,msj);
+void concatenarMsj (char *buffer,char *aux, char* origen){
+    char coma=',';
+    strcpy(aux,origen);
     strcat(buffer,aux);
-    strcat(buffer,coma);
+    strcat(buffer,&coma);
 }
 
  void codificarMsj (char * buffer, ST_TREN * tren){
     int i=0;
-    char coma[2];
-    char tipoEnt[2];
-    memset(coma,'\0',2);
-    memset(tipoEnt,'\0',2);
-    tipoEnt[0]='T';
-    coma[0]=',';
+    char coma[2]=",";
+    char tipoEnt[2]="T";
     char * aux=(char*)malloc(sizeof(char)*MAX); 
-    memset(aux,'\0',MAX);
+    memset(aux,'\0',MAX); 
+    char * aux2=(char*)malloc(sizeof(char)*MAX); 
+    memset(aux2,'\0',MAX);
 
-    strcpy(aux,tipoEnt);
-    strcpy(buffer,aux);
+   strncpy(buffer,tipoEnt,1);
     strcat(buffer,coma);
-    printf("linea:%s \n",buffer);
-    
+
     while(i<8){
-        memset(aux,'\0',MAX);
+        memset(aux2,'\0',MAX);
 
         switch(i){
            
             case 0:
-                    concatenarMsj(buffer,aux,tren->idTren,coma);
-                    
+                    concatenarMsj(aux,aux2,tren->idTren);
+                   
                     break;
             case 1:
-                    concatenarMsj(buffer,aux, tren->estacionOrigen,coma);
-                    
+                    concatenarMsj(aux,aux2, tren->estacionOrigen);
+                   
                     break;
             case 2:
-                    concatenarMsj(buffer,aux,tren->estacionDestino,coma);
+                    concatenarMsj(aux,aux2,tren->estacionDestino);
                     
                     break;
             case 3:
-                    concatenarMsj(buffer,aux,tren->pasajeros,coma); 
-                             
+                    concatenarMsj(aux,aux2,tren->pasajeros); 
+                        
                     break;
             case 4:
-                    itoa(aux,tren->combustible);
-                    strcat(buffer,aux);
-                    strcat(buffer,coma);
-                    
+                    itoa(aux2,tren->combustible);
+                    strcat(aux,aux2);
+                    strcat(aux,coma);
+                  
                     break;
             case 5:
-                    itoa(aux,tren->tViaje);
-                    strcat(buffer,aux);
-                    strcat(buffer,coma);
+                    
+                    itoa(aux2,tren->tViaje);
+                    strcat(aux,aux2);
+                    strcat(aux,coma);
                     
                     break;
             case 6:
-                    concatenarMsj(buffer,aux,tren->estado,coma); 
+                    concatenarMsj(aux,aux2,tren->estado); 
                     
                     break;
             case 7:
-                    concatenarMsj(buffer,aux,tren->motivo,coma);
+                    concatenarMsj(aux,aux2,tren->motivo);
+                    
                     break;    
             default:  
                     break;
@@ -169,15 +168,17 @@ void concatenarMsj (char *buffer,char *aux, char* msj, char * coma){
 
         i++;
     }
+    strcat(buffer,aux);
+    free(aux);
+    free(aux2);
 }
 
 void escribirMensaje(int sockTren,ST_TREN * tren) { 
     char mensaje[MAX]; 
-    int i; 
+    int i=0; 
     for (;;) { 
         bzero(mensaje, sizeof(mensaje)); 
         printf(" \n Ingrese el mensaje: \n"); 
-        i = 0; 
         while ((mensaje[i++] = getchar()) != '\n'); 
         
             if ((strncmp(mensaje, "info", 4)) == 0) { 
@@ -190,25 +191,25 @@ void escribirMensaje(int sockTren,ST_TREN * tren) {
                 printf("tiempo de viaje restante:%d\n",tren->tViaje);
                 printf("Estado:%s\n",tren->estado); // en transito, en anden, en estacion
                 printf("Motivo:%s\n",tren->motivo); // paso o anden
-            } 
-            if ((strncmp(mensaje, "enviar tren", 4)) == 0) { 
+             } else if ((strncmp(mensaje, "enviar tren", 4)) == 0) { 
                 printf("El tren se  esta poniendo en marcha.\n"); 
                 enviarTren(tren, sockTren);
 
-            break; 
-            }
+                break; 
+             } else if ((strncmp(mensaje, "exit", 4)) == 0) { 
 
-            if ((strncmp(mensaje, "exit", 4)) == 0) { 
-            printf("te desconectaste.\n"); 
-            break; 
-        } else{
+            			printf("te desconectaste.\n"); 
+
+            			break; 
+        			} else{
         
-            send(sockTren, mensaje, sizeof(mensaje),0); 
-            //bzero(mensaje, sizeof(mensaje)); 
-            //recv(sockTren, mensaje, sizeof(mensaje),0); 
-           // printf("Estacion envio: %s \n", mensaje); 
+                send(sockTren, mensaje, strlen(mensaje),0); 
+                //bzero(mensaje, sizeof(mensaje)); 
+                //recv(sockTren, mensaje, sizeof(mensaje),0); 
+                // printf("Estacion envio: %s \n", mensaje); 
         } 
         bzero(mensaje, sizeof(mensaje)); 
+        i = 0; 
     } 
 } 
  

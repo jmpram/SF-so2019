@@ -39,6 +39,7 @@ void balanceo(ST_TREN v[],int vsock[],int n){
     int aux1=0;
     ST_TREN aux2;
     for (int i=0; i<(n-1); i++){
+
         for(int j=0; j<(n-1-i);j++){
             if (((vsock[j]==0)&&(vsock[j+1]!=0))||(v[j].tViaje>v[j+1].tViaje)){
                 aux2=v[j];
@@ -71,48 +72,56 @@ char identificarEntidad(char * buffer){
     if(*token=='T' ||*token=='E'){
         tipoEnt=*token;  
     }
-    printf("valor del token:%c",*token);
     
     return tipoEnt;
 }
 
  void decodificarTren (char * buffer,ST_TREN * tren){
     int i=0;
-    char c[2] = ",";
+    char c [2]= ",";
     char *token;
-    token = strtok(buffer, c);
-    
+    token = strtok(buffer,c);
+    printf("token 0:%s",*token);
     while( token != NULL ) {
     
     if(i==1){
+    	printf("token 1:%s",*token);
         strcpy(tren->idTren,token);
+        
     }
 
     if(i==2){
         strcpy(tren->estacionOrigen,token);
+         
     }
 
     if(i==3){
         strcpy(tren->estacionDestino,token);
+         
     }
 
     if(i==4){
         strcpy(tren->pasajeros,token);
+         
     }
 
     if(i==5){
         tren->combustible=atoi(token);
+         printf("%s\n",token );
     }
 
     if(i==6){
-        tren->tViaje=atoi(token);
+        tren->tViaje=atoi(token); 
+         
     }
 
     if(i==7){
         strcpy(tren->estado,token);
+        
     }
     if(i==8){
         strcpy(tren->motivo,token);
+        
     }
     i++;
 
@@ -136,7 +145,7 @@ void escribirRegTrenes(ST_TREN tren){
     fclose(archTrenes);
 }
 
-void printestacion(ST_TREN anden , ST_TREN v[], int n, int usoanden){
+void printEstacion(ST_TREN anden , ST_TREN v[], int n, int usoanden){
     printf("ESTADO DE LA ESTACIÓN");
     if (usoanden==1){
         printf("Anden \n");
@@ -157,10 +166,10 @@ void printestacion(ST_TREN anden , ST_TREN v[], int n, int usoanden){
     }   
 }   
 
-ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int usoanden){
+ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int *usoanden){
     
     ST_TREN aux;
-    usoanden=1;
+    *usoanden=1;
     aux=v[0];
     socktren[0]=0;
     v[0].tViaje=0;
@@ -177,7 +186,7 @@ void escribirMensajeEst(ST_TREN anden,ST_TREN v[],int n,int u,int socktren[]) {
         while ((mensaje[i++] = getchar()) != '\n'); 
         
             if ((strncmp(mensaje, "info", 4)) == 0) { 
-                printestacion(anden,v,n,&u);
+                printEstacion(anden,v,n,u);
             } 
             if ((strncmp(mensaje, "enviar tren", 4)) == 0) { 
                 printf("El tren se  esta poniendo en marcha.\n"); 
