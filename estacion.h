@@ -46,9 +46,9 @@ typedef struct {
 
 }ST_ESTACION;
 
-void printestacion(ST_TREN anden,ST_TREN V[],int n,int usoanden);
+void printEstacion(ST_TREN anden , ST_TREN v[], int n, int usoanden,int socktren);
 
-ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int usoanden);
+ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int *usoanden);
 
 void escribirMensajeEst(ST_TREN anden,ST_TREN v[],int n,int u,int socktren[]);
 

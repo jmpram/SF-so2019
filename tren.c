@@ -22,7 +22,7 @@
 #include <arpa/inet.h>
 #include "tren.h"
 #define MAX 80 
-#define PORT 8080
+#define PORT 5080
 #define SA struct sockaddr 
 
  

@@ -36,7 +36,7 @@
 
 int main (int argc , char *argv[]){ 
 
-    ST_TREN tren;
+    ST_TREN tren,anden;
     createTren(&tren);
     char tipoEnt;
     int conectado=0;
@@ -47,6 +47,7 @@ int main (int argc , char *argv[]){
     int sockEstacion, new_socket , sockTrenes[MAX_TRENES] , max_trenes = 30 , 
             activity, i , valread , numDescripTren;   
     int max_numDescripTren, sockEst1;   
+    int usoanden=0;
     ST_TREN cola[MAX_TRENES];
     inicializarcola(cola,MAX_TRENES);
     //puntero  los descriptores de los trenes
@@ -204,6 +205,12 @@ int main (int argc , char *argv[]){
                             cola[i]=tren;
                             balanceo(cola,sockTrenes,MAX_TRENES);
                          }
+                        if(tipoEnt=='E'){
+                            int id=fork();
+                            if (id==0){
+                                execlp(./tren,);
+                            }
+                         }
                     
                     printf("Tren %d: %s",new_socket, buffer);
 
@@ -214,6 +221,7 @@ int main (int argc , char *argv[]){
                     }   
             }   
         }   
+    escribirMensajeEst(anden,cola,max_numDescripTren,usoanden,sockTrenes);
     }   
          
     return 0;   

@@ -49,12 +49,12 @@ int main (int argc , char *argv[]){
     ST_ESTACION estacion3;
     estacion3.sId=3;
     estacion3.usoAnden=1;
-    ST_TREN tren;
+    ST_TREN tren,anden;
     struct sockaddr_in estacionAddr;  
     int option = TRUE;   
     int sockEstacion2, new_socket , sockTrenes[30] ,  
     max_trenes = 30 , activity, i , valread , numDescripTren;   
-    int max_numDescripTren;
+    int max_numDescripTren, usoanden=0;
     ST_TREN cola[MAX_TRENES];
     inicializarcola(cola, MAX_TRENES);
     //puntero  los descriptores de los trenes
@@ -201,6 +201,7 @@ int main (int argc , char *argv[]){
                 }   
             }   
         }   
+    escribirMensajeEst(anden,cola,max_numDescripTren,usoanden,sockTrenes);
     }   
          
     return 0;   

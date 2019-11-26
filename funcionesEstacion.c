@@ -26,12 +26,12 @@ void inicializar (int v[],int n){
 void inicializarcola (ST_TREN v[],int n){     
     for (int i = 0; i < n; i++){   
         v[i].combustible=0;
-        v[i].estacionDestino[0]='\0';
-        v[i].estacionOrigen[0]='\0';
-        v[i].estado[0]='\0';
-        v[i].idTren[0]='\0';
-        v[i].motivo[0]='\0';
-        v[i].pasajeros[0]='\0';
+        memset(v[i].estacionDestino,'\0',strlen(v[i].estacionDestino));
+        memset(v[i].estacionOrigen,'\0',strlen(v[i].estacionOrigen));
+        memset(v[i].estado,'\0',strlen(v[i].estado));
+        memset(v[i].idTren,'\0',strlen(v[i].idTren));
+        memset(v[i].motivo,'\0',strlen(v[i].motivo));
+        memset(v[i].pasajeros,'\0',strlen(v[i].pasajeros));
         v[i].tViaje=0;
     }
 }
@@ -145,8 +145,8 @@ void escribirRegTrenes(ST_TREN tren){
     fclose(archTrenes);
 }
 
-void printEstacion(ST_TREN anden , ST_TREN v[], int n, int usoanden){
-    printf("ESTADO DE LA ESTACIÓN");
+void printEstacion(ST_TREN anden , ST_TREN v[], int n, int usoanden,int socktren){
+    printf("ESTADO DE LA ESTACIÓN: \n");
     if (usoanden==1){
         printf("Anden \n");
         printf("Id Tren: %s Combustible: %d Estado: %s Pasajeros %s Tiempo de Viaje %d"
@@ -154,16 +154,20 @@ void printEstacion(ST_TREN anden , ST_TREN v[], int n, int usoanden){
                 anden.idTren ,anden.combustible,anden.estado,anden.pasajeros,
                 anden.tViaje,anden.estacionOrigen ,anden.estacionDestino , anden.motivo);
     } else{
-        printf("No hay trenes en el anden");
+        printf("No hay trenes en el anden \n");
     }
     
     printf("Trenes en cola de espera: \n");
-    for (int i=0;i<n;i++){
+    if (socktren==0){
+        printf("No hay trenes en espera del anden \n");
+    }else{
+        for (int i=0;i<n||;i++){
         printf("Id Tren: %s Combustible: %d Estado: %s Pasajeros %s Tiempo de Viaje %d"
                 " Estacion Origen: %s Estacion Destino: %s Motivo: %s\n",
                 v[i].idTren ,v[i].combustible,v[i].estado,v[i].pasajeros,
                 v[i].tViaje,v[i].estacionOrigen ,v[i].estacionDestino , v[i].motivo);
-    }   
+        }
+    }
 }   
 
 ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int *usoanden){
@@ -186,7 +190,7 @@ void escribirMensajeEst(ST_TREN anden,ST_TREN v[],int n,int u,int socktren[]) {
         while ((mensaje[i++] = getchar()) != '\n'); 
         
             if ((strncmp(mensaje, "info", 4)) == 0) { 
-                printEstacion(anden,v,n,u);
+                printEstacion(anden,v,n,u,socktren[0]);
             } 
             if ((strncmp(mensaje, "enviar tren", 4)) == 0) { 
                 printf("El tren se  esta poniendo en marcha.\n"); 

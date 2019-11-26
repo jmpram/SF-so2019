@@ -191,11 +191,11 @@ void escribirMensaje(int sockTren,ST_TREN * tren) {
                 printf("tiempo de viaje restante:%d\n",tren->tViaje);
                 printf("Estado:%s\n",tren->estado); // en transito, en anden, en estacion
                 printf("Motivo:%s\n",tren->motivo); // paso o anden
-             } else if ((strncmp(mensaje, "enviar tren", 4)) == 0) { 
+             } else if ((strncmp(mensaje, "registrar tren", 4)) == 0) { 
                 printf("El tren se  esta poniendo en marcha.\n"); 
                 enviarTren(tren, sockTren);
 
-                break; 
+                //break; 
              } else if ((strncmp(mensaje, "exit", 4)) == 0) { 
 
             			printf("te desconectaste.\n"); 
