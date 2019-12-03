@@ -12,6 +12,7 @@
  */
 #include "tren.h"
 #include "estacion.h"
+#include "comunicaciones.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,7 +42,7 @@ void balanceo(ST_TREN v[],int vsock[],int n){
     for (int i=0; i<(n-1); i++){
 
         for(int j=0; j<(n-1-i);j++){
-            if (((vsock[j]==0)&&(vsock[j+1]!=0))||(v[j].tViaje>v[j+1].tViaje)){
+            if (((vsock[j]==0) && (vsock[j+1]!=0)) || (v[j].tViaje > v[j+1].tViaje)){
                 aux2=v[j];
                 aux1=vsock[j];
                 v[j]=v[j+1];
@@ -53,86 +54,70 @@ void balanceo(ST_TREN v[],int vsock[],int n){
     }
 }
 
-/*void itoa( char *linea,int valor){
-    sprintf(linea,"%d",valor); 
-}*/
-void enviarTrenE(ST_TREN * tren, int sockTren){
-
-    char * mensaje=(char*)malloc(sizeof(char)*MAX);
-	codificarMsj(mensaje,tren);
-    send(sockTren, mensaje, sizeof(mensaje),0); 
-    free(mensaje);
-}
 char identificarEntidad(char * buffer){
     char tipoEnt;   
     int i=0;
-    char c[2] = ",";
+    char c= ',';
     char *token;
-    token = strtok(buffer, c);
+    token = strtok(buffer, &c);
     if(*token=='T' ||*token=='E'){
         tipoEnt=*token;  
     }
-    
     return tipoEnt;
 }
 
- void decodificarTren (char * buffer,ST_TREN * tren){
+ void decodificarTren (char *buffer, ST_TREN * tren){
     int i=0;
-    char c [2]= ",";
-    char *token;
-    token = strtok(buffer,c);
-    printf("token 0:%s",*token);
-    while( token != NULL ) {
-    
+    int indice=0;
+    char * palabra=(char*)malloc(sizeof(char)*MAX);
+
+    while( *buffer!='\0' ) {
+    indice=0;
+    memset(palabra,'\0',MAX);
+    obtenerPalabra(buffer,palabra,&indice);
+
     if(i==1){
-    	printf("token 1:%s",*token);
-        strcpy(tren->idTren,token);
+    	strcpy(tren->idTren,palabra);
         
     }
-
     if(i==2){
-        strcpy(tren->estacionOrigen,token);
+        strcpy(tren->estacionOrigen,palabra);
          
     }
-
     if(i==3){
-        strcpy(tren->estacionDestino,token);
+        strcpy(tren->estacionDestino,palabra);
          
     }
-
     if(i==4){
-        strcpy(tren->pasajeros,token);
+        strcpy(tren->pasajeros,palabra);
          
     }
-
     if(i==5){
-        tren->combustible=atoi(token);
-         printf("%s\n",token );
+        tren->combustible=atoi(palabra);
+        
     }
-
     if(i==6){
-        tren->tViaje=atoi(token); 
+        tren->tViaje=atoi(palabra); 
          
     }
-
     if(i==7){
-        strcpy(tren->estado,token);
+        strcpy(tren->estado,palabra);
         
     }
     if(i==8){
-        strcpy(tren->motivo,token);
+        strcpy(tren->motivo,palabra);
         
     }
     i++;
+    buffer=buffer+indice; 
 
-    token = strtok(NULL, c);
   }
+  free(palabra);
 
 }
 
 void escribirRegTrenes(ST_TREN tren){
     FILE * archTrenes=NULL;
-
     archTrenes=fopen("registros.txt","a");
 
     if(archTrenes==NULL){
@@ -161,11 +146,16 @@ void printEstacion(ST_TREN anden , ST_TREN v[], int n, int usoanden,int socktren
     if (socktren==0){
         printf("No hay trenes en espera del anden \n");
     }else{
-        for (int i=0;i<n||;i++){
-        printf("Id Tren: %s Combustible: %d Estado: %s Pasajeros %s Tiempo de Viaje %d"
+        for (int i=0;i<n;i++){
+
+            if(v[i].idTren!=0){
+
+                printf("Id Tren: %s Combustible: %d Estado: %s Pasajeros %s Tiempo de Viaje %d"
                 " Estacion Origen: %s Estacion Destino: %s Motivo: %s\n",
                 v[i].idTren ,v[i].combustible,v[i].estado,v[i].pasajeros,
                 v[i].tViaje,v[i].estacionOrigen ,v[i].estacionDestino , v[i].motivo);
+            }
+        
         }
     }
 }   
@@ -180,76 +170,5 @@ ST_TREN enviarAnden (ST_TREN v[],int socktren[], int n, int *usoanden){
     balanceo(v,socktren,n);
     return aux;
 }
-void escribirMensajeEst(ST_TREN anden,ST_TREN v[],int n,int u,int socktren[]) { 
-    char mensaje[MAX]; 
-    int i; 
-    for (;;) { 
-        bzero(mensaje, sizeof(mensaje)); 
-        printf(" \n Ingrese el mensaje: \n"); 
-        i = 0; 
-        while ((mensaje[i++] = getchar()) != '\n'); 
-        
-            if ((strncmp(mensaje, "info", 4)) == 0) { 
-                printEstacion(anden,v,n,u,socktren[0]);
-            } 
-            if ((strncmp(mensaje, "enviar tren", 4)) == 0) { 
-                printf("El tren se  esta poniendo en marcha.\n"); 
-                enviarTrenE(&anden, socktren[1]);
 
-            break; 
-            }
-            if((strncmp(mensaje, "enviar anden", 4)) == 0){
-                if (u==0){
-                    anden=enviarAnden(v,socktren,n,&u);
-                }else{
-                    printf("el anden está siendo utilizado");
-                }
-            }
-            if ((strncmp(mensaje, "exit", 4)) == 0) { 
-            printf("te desconectaste.\n"); 
-            break; 
-        } else{
-        
-            send(socktren, mensaje, sizeof(mensaje),0); 
-            //bzero(mensaje, sizeof(mensaje)); 
-            //recv(sockTren, mensaje, sizeof(mensaje),0); 
-           // printf("Estacion envio: %s \n", mensaje); 
-        } 
-        bzero(mensaje, sizeof(mensaje)); 
-    } 
-} 
 
-/*
-void create(ST_LISTA **list){
-    *list=NULL;
-    return;
-}
-ST_LISTA * crearnodo(ST_TREN dato){
-    ST_LISTA *nodo=(ST_LISTA*) malloc (sizeof(ST_LISTA));
-    nodo->data=dato;
-    nodo->ste=NULL;
-    return nodo;
-}
-/*
- *Inserta un nodo y lo ordena por tiempo de viaje #FALTA CREAR CONDICION PARA 
- * EVITAR STARVATION#
- */
-/*
-ST_LISTA * instordlistaesp (ST_LISTA **list, ST_TREN dato){
-    ST_LISTA *nodo=crearnodo (dato);
-    ST_LISTA *listaux=*list;
-    ST_LISTA *nodoant=NULL;
-    while (listaux!=NULL && dato.tViaje>listaux->data->tViaje){
-        nodoant=listaux;
-        listaux=listaux->ste;
-        
-    }
-    if(nodoant==NULL){
-        *list=nodo;
-    }
-    else{
-        nodoant->nodo;
-    }
-    nodo->ste=listaux;
-    return nodo;
-}*/

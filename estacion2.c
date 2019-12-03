@@ -14,56 +14,42 @@
  * 
  */
 
-//Example code: A simple server side code, which echos back the received message. 
-//Handle multiple socket connections with select and fd_set on Linux 
-#include <stdbool.h>
 #include <stdio.h> 
-#include <string.h> //strlen 
 #include <stdlib.h> 
-#include <errno.h> 
-#include <unistd.h> //close 
-#include <arpa/inet.h> //close 
-#include <sys/types.h> 
-#include <sys/socket.h> 
-#include <netinet/in.h> 
-#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
+#include <errno.h>  
 #include "tren.h"
 #include "estacion.h"
+#include "comunicaciones.h"
 #define MAX 80
 #define MAX_TRENES 30
 #define TRUE 1 
 #define FALSE 0 
 #define PORT 5080
-
-/*typedef struct{
-    int sId;
-    int usoAnden;
-    ST_TREN regTrenes[5];
-
-}ST_ESTACION;*/
-    
+   
 int main (int argc , char *argv[]){ 
 
-    char buffer[MAX]; 
-    memset(buffer,'\0' ,MAX);
-    ST_ESTACION estacion3;
-    estacion3.sId=3;
-    estacion3.usoAnden=1;
+    pthread_t hilo;
+
     ST_TREN tren,anden;
-    struct sockaddr_in estacionAddr;  
-    int option = TRUE;   
-    int sockEstacion2, new_socket , sockTrenes[30] ,  
-    max_trenes = 30 , activity, i , valread , numDescripTren;   
-    int max_numDescripTren, usoanden=0;
-    ST_TREN cola[MAX_TRENES];
-    inicializarcola(cola, MAX_TRENES);
+    ST_TREN cola [MAX_TRENES]; 
+    
+    char tipoEnt;
+    char * buffer=(char*)malloc(sizeof(char)*MAX) ; 
+    memset(buffer,'\0',MAX);
+    struct sockaddr_in estacionAddr; 
+    struct sockaddr_in estacion2;  
+  
+    int conectado=0,option = TRUE,usoanden=FALSE,sockEstacion2,new_socket,sockTrenes[MAX_TRENES],
+    max_trenes = 30,activity,i,valread,numDescripTren,max_numDescripTren,sockEst1;   
+  
+    inicializarTren(&tren);
+    inicializarcola(cola,MAX_TRENES);
+    inicializar (sockTrenes,MAX_TRENES);
+    //se inicilizan el array socket trenes a valores 0
+    
     //puntero  los descriptores de los trenes
     fd_set descriptoresTrenes;   
-    char *message = (char*)malloc(sizeof(char)*MAX);   
-    memset(message,'\0' ,MAX);
-    //se inicilizan el array socket trenes a valores 0
-    inicializar (sockTrenes, MAX_TRENES); 
-    char tipoEnt;     
+       
     //se crea el socket estacion 
     if( (sockEstacion2= socket(AF_INET , SOCK_STREAM , 0)) == 0){   
         perror("creacion de estacion fallida");   
@@ -165,7 +151,7 @@ int main (int argc , char *argv[]){
             }   
         }   
              
-        //else its some IO operation on some other socket 
+         //sino es una operacion de entrada salida u otro socket
         for (i = 0; i < MAX_TRENES; i++){ 
 
             numDescripTren = sockTrenes[i];   
@@ -174,35 +160,40 @@ int main (int argc , char *argv[]){
                 //se chequea si alguien se desconecto o  se recibe el mensaje del tren 
                 if ((valread = read( numDescripTren , buffer, MAX)) == 0){   
                 //Somebody disconnected , get his details and print  
-                    getpeername(numDescripTren , (struct sockaddr*)&estacionAddr ,
-                    (socklen_t*)&addrlen );   
-                    printf("Host disconnected , ip %s , port %d \n" ,
-                    inet_ntoa(estacionAddr.sin_addr) ,ntohs(estacionAddr.sin_port));   
-                         
-                     // CIERRA EL SOCKET DEL TREN QUE SE DESCONECTO Y MARCA LA LISTA COMO 0 PRAA REUSAR
+                    getpeername(numDescripTren , (struct sockaddr*)&estacionAddr,
+                      (socklen_t*)&addrlen );   
+                    printf("Host disconnected , ip %s , port %d \n" ,inet_ntoa(estacionAddr.sin_addr)
+                    ,ntohs(estacionAddr.sin_port));   
+                    // CIERRA EL SOCKET DEL TREN QUE SE DESCONECTO Y MARCA LA LISTA COMO 0 PRAA REUSAR
                     close( numDescripTren );   
                     sockTrenes[i] = 0;
                     cola[i].tViaje=0;
-                    balanceo(cola, sockTrenes,MAX_TRENES);
-                }else { 
-                    tipoEnt=identificarEntidad(buffer);
+                    balanceo(cola,sockTrenes,MAX_TRENES);
+                }else{  
+                        printf("msj recibido:%s\n",buffer);
+                        tipoEnt=identificarEntidad(buffer);
                         if(tipoEnt=='T'){
 
-                            decodificarTren(buffer,&tren);
+                            decodificarTren(buffer, &tren);   
+                            printf("tren id: %s estado:%s\n", tren.idTren,tren.estado);
                             cola[i]=tren;
                             balanceo(cola,sockTrenes,MAX_TRENES);
-                        }
-                    printf("Tren %d: %s",new_socket, buffer);
-                    // ESTO PERMITE ENVIAR UN MENSAJE AL TREN  SERIA UTILIZADO PARA LOS COMANDOS
-                    // ACA DEBERIAMOS IMPLEMENTAR UNA FUNCION PARECIDA A LA USADA EN TREN1.C
-					//gets(message);  
-                    // send(numDescripTren , message , strlen(message), 0 );  
-                    // memset(message,'\0' ,MAX);
+                         }
+                          /* if(tipoEnt=='E'){
+                            int id=fork();
+                            if (id==0){
+                                execlp("./tren","./tren",NULL);
+                            }
+                          }*/
+                    
+                    printf("Tren %d %s\n",new_socket, buffer);
+                 
                 }   
-            }   
+            }      
+           
         }   
-    escribirMensajeEst(anden,cola,max_numDescripTren,usoanden,sockTrenes);
-    }   
-         
-    return 0;   
-}   
+    }    
+
+return 0;   
+  
+}

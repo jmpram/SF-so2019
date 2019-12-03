@@ -17,15 +17,19 @@
  * funciones del tren
  * Manejos de los mensajes de la estructura tren cliente
  */ 
-#include <stdbool.h>
+
+
 #include "tren.h"
+#include "comunicaciones.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #define MAX 80
 
 
-void createTren(ST_TREN * tren){
+void inicializarTren(ST_TREN * tren){
      
      memset(tren->idTren,'\0',8);
      memset(tren->estacionOrigen,'\0',strlen(tren->estacionOrigen));
@@ -36,17 +40,6 @@ void createTren(ST_TREN * tren){
      strcpy(tren->estado,"estacion");//estacion,anden, transito
      memset(tren->motivo ,'\0',strlen(tren->motivo));//PASO O ANDEN
      
-}
-
-void obtenerPalabra (const char* linea, char * palabra, int *indice){
-    int i=0;
-    while(*linea && *linea!=',' && *linea!='.'){
-        *(palabra+i)=*linea;
-        linea++;
-        *indice=*indice+1;
-        i++;
-    }
-    *indice=*indice+1;
 }
 
 void cargarTren(const char* linea,ST_TREN * tren){
@@ -86,26 +79,8 @@ void cargarTren(const char* linea,ST_TREN * tren){
             }
         linea=linea+indice;          
      }
+     free(palabra);
     
-}
-
-void itoa(char *linea,int valor){
-    sprintf(linea,"%d",valor); 
-}
-
-void enviarTren(ST_TREN * tren, int sockTren){
-
-    char * mensaje=(char*)malloc(sizeof(char)*MAX);
-    memset(mensaje,'\0',MAX);
-	codificarMsj(mensaje,tren);
-    send(sockTren, mensaje,strlen(mensaje),0); 
-    free(mensaje);
-}
-void concatenarMsj (char *buffer,char *aux, char* origen){
-    char coma=',';
-    strcpy(aux,origen);
-    strcat(buffer,aux);
-    strcat(buffer,&coma);
 }
 
  void codificarMsj (char * buffer, ST_TREN * tren){
@@ -173,43 +148,17 @@ void concatenarMsj (char *buffer,char *aux, char* origen){
     free(aux2);
 }
 
-void escribirMensaje(int sockTren,ST_TREN * tren) { 
-    char mensaje[MAX]; 
-    int i=0; 
-    for (;;) { 
-        bzero(mensaje, sizeof(mensaje)); 
-        printf(" \n Ingrese el mensaje: \n"); 
-        while ((mensaje[i++] = getchar()) != '\n'); 
-        
-            if ((strncmp(mensaje, "info", 4)) == 0) { 
-                printf("Informacion del tren:\n"); 
-                printf("Modelo:%s\n",tren->idTren);
-                printf("Origen:%s\n",tren->estacionOrigen);
-                printf("Destino:%s\n",tren->estacionDestino);
-                printf("Cant de pasajeros:%s\n",tren->pasajeros);
-                printf("Litros de combustible:%d\n",tren->combustible);
-                printf("tiempo de viaje restante:%d\n",tren->tViaje);
-                printf("Estado:%s\n",tren->estado); // en transito, en anden, en estacion
-                printf("Motivo:%s\n",tren->motivo); // paso o anden
-             } else if ((strncmp(mensaje, "registrar tren", 4)) == 0) { 
-                printf("El tren se  esta poniendo en marcha.\n"); 
-                enviarTren(tren, sockTren);
+void imprimirInfoTren(ST_TREN * tren){
 
-                //break; 
-             } else if ((strncmp(mensaje, "exit", 4)) == 0) { 
+    printf("Informacion del tren:\n"); 
+    printf("Modelo:%s\n",tren->idTren);
+    printf("Origen:%s\n",tren->estacionOrigen);
+    printf("Destino:%s\n",tren->estacionDestino);
+    printf("Cant de pasajeros:%s\n",tren->pasajeros);
+    printf("Litros de combustible:%d\n",tren->combustible);
+    printf("tiempo de viaje restante:%d\n",tren->tViaje);
+    printf("Estado:%s\n",tren->estado); // en transito, en anden, en estacion
+    printf("Motivo:%s\n",tren->motivo); // paso o anden
+}
 
-            			printf("te desconectaste.\n"); 
-
-            			break; 
-        			} else{
-        
-                send(sockTren, mensaje, strlen(mensaje),0); 
-                //bzero(mensaje, sizeof(mensaje)); 
-                //recv(sockTren, mensaje, sizeof(mensaje),0); 
-                // printf("Estacion envio: %s \n", mensaje); 
-        } 
-        bzero(mensaje, sizeof(mensaje)); 
-        i = 0; 
-    } 
-} 
  
