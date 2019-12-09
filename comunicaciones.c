@@ -27,6 +27,7 @@
 #include <arpa/inet.h>
 #include "tren.h"
 #include "estacion.h"
+#include <curses.h>
 #define MAX 80
 
 void itoa(char *linea,int valor){
@@ -63,7 +64,47 @@ void enviarTrenE(ST_TREN * tren, int sockToE){
     free(mensaje);
 }
 
-void escribirMensajeT(int sockTren,ST_TREN * tren) { 
+ERROR clearLogWindow(WINDOW *pWin){
+    werase(pWin);
+    wrefresh(pWin);
+    return ERR_OK;
+}
+
+/**
+ * Limpia la ventana de comandos cuando se llena.
+ * 
+ * @param pWin ventana de comandos
+ * @return ERR_OK
+ */
+ERROR clearCmdWindow(WINDOW *pWin){
+    int maxRow = 0;
+    int maxCol = 0;
+    int row = 0;
+    int col = 0;
+    getyx(pWin, row, col);
+    getmaxyx(pWin, maxRow, maxCol);
+    if(row == maxRow-1){
+        werase(pWin);
+    }
+    
+    return ERR_OK;
+}
+
+ERROR processCommand(ST_TREN * tren,ST_APP_WINDOW *pAppWin, const char *commandLine){
+    if(strncmp(commandLine, "info", 5)==0){
+        imprimirInfoTren(tren,pAppWin);
+    }
+    
+    if(strncmp(commandLine, "registrar tren", 6)==0){
+        clearLogWindow(pAppWin->pLogWindow);
+    }
+    
+       
+    clearCmdWindow(pAppWin->pCmdWindow);
+    return ERR_OK;
+}
+
+/*void escribirMensajeT(int sockTren,ST_TREN * tren) { 
     char * mensaje=(char*)malloc(sizeof(char*)*MAX); 
      
         while (1){
@@ -95,7 +136,7 @@ void escribirMensajeT(int sockTren,ST_TREN * tren) {
         }  
         
     free(mensaje);
-} 
+} */
  
 void escribirMensajeEst(ST_TREN anden,ST_TREN v[],int n,int u,int socktren[]) { 
     char * mensaje=(char*)malloc(sizeof(char*)*MAX); 

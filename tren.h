@@ -23,7 +23,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#include <curses.h>
+#include "user_interface.h"
+    
+typedef enum {ERR_OK=0, ERR_UNKNOWN_CMD} ERROR;
 
 typedef struct {
 	
@@ -45,13 +48,15 @@ typedef struct {
 
 }ST_TRENP;
 
+int ncurses(int sockTren,ST_TREN * tren);
+
 void inicializarTren(ST_TREN * tren);
 
 void cargarTren(const char* linea,ST_TREN * tren);
 
 void codificarMsj (char * buffer, ST_TREN * tren);
 
-void imprimirInfoTren(ST_TREN * tren);
+ERROR imprimirInfoTren(ST_TREN * tren, ST_APP_WINDOW *pAppWin);
 
 
 #endif /* TREN_H */

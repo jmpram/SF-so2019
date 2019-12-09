@@ -32,11 +32,17 @@
 #include <sys/types.h> 
 #include <sys/time.h>
 #include "tren.h"
+#include "user_interface.h"
+#include <curses.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#define CMD_LINE_LENGHT 50
+    
+//typedef enum {ERR_OK=0, ERR_UNKNOWN_CMD} ERROR;
+    
+ERROR processCommand(ST_TREN *tren, ST_APP_WINDOW *pWin, const char *commandLine);
 void itoa(char *linea,int valor);
 
 void concatenarMsj (char *buffer,char *aux, char* origen);

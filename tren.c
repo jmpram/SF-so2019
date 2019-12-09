@@ -22,14 +22,16 @@
 #include <arpa/inet.h>
 #include "tren.h"
 #include "comunicaciones.h"
+#include <curses.h>
+#include "user_interface.h"
 #define MAX 80 
 #define PORT 8080
 
 int main(int argc, char * argv[]) { 
 
-      if(argv[2]==NULL){
+    /*/  if(argv[2]==NULL){
         printf("estamos en un fork\n");
-    }
+    }*/
 
     int sockTren; 
     ST_TREN tren;
@@ -46,6 +48,9 @@ int main(int argc, char * argv[]) {
         exit(EXIT_FAILURE);
     }
     
+    
+    
+    
     fgets(linea,MAX,config);
     
     cargarTren(linea,&tren);
@@ -54,7 +59,7 @@ int main(int argc, char * argv[]) {
     
 
     sockTren=crearSockTren(puerto);
-    
+    ncurses(sockTren, &tren);
     /*sockTren = socket(AF_INET, SOCK_STREAM, 0); 
     if (sockTren == -1) { 
         printf("la creacion del socket fallo...\n"); 
@@ -77,7 +82,7 @@ int main(int argc, char * argv[]) {
         printf("Esta conectado con la estacion..\n"); */
     
     
-    escribirMensajeT(sockTren, &tren); 
+    // escribirMensajeT(sockTren, &tren); 
   
     
     close(sockTren); 

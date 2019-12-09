@@ -147,7 +147,7 @@ int main(int argc , char *argv[]){
                 {   
                     sockTrenes[i] = new_socket;   
                     printf("añadiendolo a la lista de socket trenes %d\n" , i);   
-                    ordcola(cola[],30,sockTrenes[]);     
+                    ordcola(cola,30,sockTrenes);     
                     break;   
                 }   
             }   
