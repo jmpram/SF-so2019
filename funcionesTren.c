@@ -31,7 +31,7 @@
 #define MAX 80
 #define HELP_MSG_LENGHT 255
 
-int ncurses(int sockTren,ST_TREN * tren) {
+int ncurses(int *sockTren,ST_TREN * tren) {
     ST_APP_WINDOW pWin;
     initUserInterface(&pWin);
     drawUserInterface(&pWin);
@@ -48,7 +48,7 @@ int ncurses(int sockTren,ST_TREN * tren) {
     wgetnstr(pWin.pCmdWindow, linea, CMD_LINE_LENGHT + 1);
     
     while(strncmp(linea, "exit", CMD_LINE_LENGHT + 1)!=0){
-        processCommand(tren,&pWin, linea);
+        processCommand(sockTren,tren,&pWin, linea);
         memset(linea, '\0', 21);
         wgetnstr(pWin.pCmdWindow, linea, CMD_LINE_LENGHT + 1);
     }
@@ -176,32 +176,52 @@ void cargarTren(const char* linea,ST_TREN * tren){
     free(aux);
     free(aux2);
 }
-
+ERROR printHelp(ST_APP_WINDOW *pAppWin){
+    char msg[HELP_MSG_LENGHT+1];
+    memset(msg, '\0', HELP_MSG_LENGHT+1);
+    strncpy(msg, "Ejemplo de uso de la biblioteca ncurses\n", 41);
+    strncat(msg, "Comandos permitidos:\n", 22);
+    strncat(msg, "\t * exit: permite salir de la aplicación\n", 43);
+    strncat(msg, "\t * clear: limpia ventana de Mensajes\n", 40);
+    strncat(msg, "\t * copy: copia el texto a la ventana de Mensajes", 50);
+    printMessage(pAppWin, msg, GREEN);
+    return ERR_OK;
+}    
 ERROR imprimirInfoTren(ST_TREN * tren, ST_APP_WINDOW *pAppWin){
     char msg[HELP_MSG_LENGHT+1];
     memset (msg,'\0',HELP_MSG_LENGHT+1);
+    char aux[MAX]; 
+    memset(aux,'\0',MAX);
     strncpy(msg,"Informacion del tren:\n",23); 
-    strncat(msg,"Modelo:",7);
+    strncat(msg,"Modelo: ",8);
     strncat(msg,tren->idTren,8);
     strncat(msg,"\n",2);
-    strncat(msg,"Origen:",7);
-    strncat(msg,"%s\n",4);
+    strncat(msg,"Origen: ",8);
     strncat(msg,tren->estacionOrigen,5);
-    strncat(msg,"Destino:",8);
-    strncat(msg,"%s\n",4);
+    strncat(msg,"\n",2);
+    strncat(msg,"Destino: ",9);
     strncat(msg,tren->estacionDestino,5);
-    /*strncat(msg,"Cant de pasajeros:",18);
-    strncat(msg,"%s\n",4);
-            tren->pasajeros);
-    printf("Litros de combustible:%d\n",
-            tren->combustible);
-    printf("tiempo de viaje restante:%d\n",
-            tren->tViaje);
-    printf("Estado:%s\n",
-            tren->estado); // en transito, en anden, en estacion
-    printf("Motivo:%s\n",
-            tren->motivo); // paso o anden*/
-    printMessage(pAppWin,msg,GREEN);
+    strncat(msg,"\n",2);
+    strncat(msg,"Cant de pasajeros: ",19);
+    strncat(msg,tren->pasajeros,6);
+    strncat(msg,"\n",2);
+    strncat(msg,"Litros de combustible: ",23);
+    itoa(aux,tren->combustible);
+    strncat(msg,aux,6);
+    strncat(msg,"\n",2);
+    memset(aux,'\0',MAX);
+    strncat(msg,"tiempo de viaje restante: ",26);
+    itoa(aux,tren->tViaje);
+    strncat(msg,aux,6);
+    strncat(msg,"\n",2);
+    memset(aux,'\0',MAX);
+    strncat(msg,"Estado: ",8);
+    strncat(msg,tren->estado,11); // en transito, en anden, en estacion
+    strncat(msg,"\n",2);
+    strncat(msg,"Motivo: ",8);
+    strncat(msg,tren->motivo,11); // paso o anden*/
+    strncat(msg,"\n",2);
+    printMessage(pAppWin,msg,RED);
     return ERR_OK;
 }
 

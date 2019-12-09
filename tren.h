@@ -48,13 +48,15 @@ typedef struct {
 
 }ST_TRENP;
 
-int ncurses(int sockTren,ST_TREN * tren);
+int ncurses(int *sockTren,ST_TREN * tren);
 
 void inicializarTren(ST_TREN * tren);
 
 void cargarTren(const char* linea,ST_TREN * tren);
 
 void codificarMsj (char * buffer, ST_TREN * tren);
+
+ERROR printHelp(ST_APP_WINDOW *pAppWin);
 
 ERROR imprimirInfoTren(ST_TREN * tren, ST_APP_WINDOW *pAppWin);
 

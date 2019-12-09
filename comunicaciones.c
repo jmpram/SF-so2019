@@ -57,11 +57,12 @@ void enviarTrenE(ST_TREN * tren, int sockToE){
     char * mensaje=(char*)malloc(sizeof(char)*MAX);
     memset(mensaje,'\0',MAX);
 
-    printf("El tren se  esta poniendo en marcha.\n"); 
+    //printf("El tren se  esta poniendo en marcha.\n"); 
     
-	codificarMsj(mensaje,tren);
+    codificarMsj(mensaje,tren);
     send(sockToE, mensaje,strlen(mensaje),0); 
     free(mensaje);
+    return ;
 }
 
 ERROR clearLogWindow(WINDOW *pWin){
@@ -90,16 +91,27 @@ ERROR clearCmdWindow(WINDOW *pWin){
     return ERR_OK;
 }
 
-ERROR processCommand(ST_TREN * tren,ST_APP_WINDOW *pAppWin, const char *commandLine){
-    if(strncmp(commandLine, "info", 5)==0){
-        imprimirInfoTren(tren,pAppWin);
-    }
-    
-    if(strncmp(commandLine, "registrar tren", 6)==0){
+ERROR processCommand(int sockTren,ST_TREN * tren,ST_APP_WINDOW *pAppWin, 
+        const char *commandLine){
+    if(strncmp(commandLine,"help", 4)==0){
         clearLogWindow(pAppWin->pLogWindow);
+        printHelp(pAppWin);
+        clearLogWindow(pAppWin->pCmdWindow);
+    
+    }
+    if(strncmp(commandLine,"info", 4)==0){
+        clearLogWindow(pAppWin->pLogWindow);
+        imprimirInfoTren(tren,pAppWin);
+        clearLogWindow(pAppWin->pCmdWindow);
     }
     
-       
+    if(strncmp(commandLine, "reg", 3)==0){
+        clearLogWindow(pAppWin->pLogWindow);
+        enviarTrenE(tren, sockTren);
+        printMessage(pAppWin,"El tren se registro",GREEN);
+        clearLogWindow(pAppWin->pCmdWindow);
+    }
+          
     clearCmdWindow(pAppWin->pCmdWindow);
     return ERR_OK;
 }
