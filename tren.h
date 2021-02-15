@@ -9,7 +9,9 @@
  * Juan Ramasco
  * /
  
- /** 
+ /**
+ * 
+ * tren.h 
  * Manejo de tren
  * 
  * Estructura Tren y cabeceras de las funciones tren.h
@@ -21,6 +23,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <curses.h>
+#include "user_interface.h"
+    
+typedef enum {ERR_OK=0, ERR_UNKNOWN_CMD} ERROR;
+
 typedef struct {
 	
     char idTren[8];
@@ -30,31 +37,28 @@ typedef struct {
     int combustible;
     int tViaje;
     char estado[10];
-    char motivo[10];  
+    char motivo[10]; 
+ 
 } ST_TREN;
 
-void createTren(ST_TREN * tren);
+typedef struct {
 
-void obtenerPalabra (const char* linea, char * palabra, int *indice);
+    int idP;
+    ST_TREN tren;
 
-void itoa(char *linea,int valor);
+}ST_TRENP;
+
+int ncurses(int *sockTren,ST_TREN * tren);
+
+void inicializarTren(ST_TREN * tren);
 
 void cargarTren(const char* linea,ST_TREN * tren);
 
-void enviarTren(ST_TREN * tren, int sockTren);
+void codificarMsj (char * buffer, ST_TREN * tren);
 
-void concatenarMsj (char *buffer,char *aux, char* msj, char * coma);
+ERROR printHelp(ST_APP_WINDOW *pAppWin);
 
-void codificarMsj(char * buffer, ST_TREN * tren);
-
-void escribirMensaje(int sockTren,ST_TREN * tren);
-
-void registrarTren(ST_TREN * tren);
+ERROR imprimirInfoTren(ST_TREN * tren, ST_APP_WINDOW *pAppWin);
 
 
-
-#ifdef __cplusplus
-}
-
-#endif
 #endif /* TREN_H */

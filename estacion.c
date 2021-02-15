@@ -7,6 +7,12 @@
  * Leguizamon Marcos
  * Juan Ramasco
  */
+
+/*
+ * 
+ * estacion.c
+ * 
+ */
 //Example code: A simple server side code, which echos back the received message. 
 //Handle multiple socket connections with select and fd_set on Linux 
 #include <stdio.h> 
@@ -141,7 +147,7 @@ int main(int argc , char *argv[]){
                 {   
                     sockTrenes[i] = new_socket;   
                     printf("añadiendolo a la lista de socket trenes %d\n" , i);   
-                         
+                    ordcola(cola,30,sockTrenes);     
                     break;   
                 }   
             }   
